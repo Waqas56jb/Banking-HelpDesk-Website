@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            background-color: #222;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .sidebar a {
+            color: #00bcd4;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .sidebar a:hover {
+            background-color: #0097a7;
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+
+        .card-custom {
+            background-color: #222;
+            color: #fff;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .logout-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        .logout-btn:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h3>Admin Panel</h3>
+        <a href="#">Dashboard</a>
+        <a href="#">Manage Users</a>
+        <a href="#">Support Tickets</a>
+        <a href="#">Settings</a>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="content">
+        <h1>Support Tickets</h1>
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Issue Type</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Priority</th>
+                        <th>Branch Code</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
+                <tbody id="ticketsTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function fetchTickets() {
+            try {
+                const response = await fetch("http://localhost:5000/api/tickets");
+                const tickets = await response.json();
+
+                const tableBody = document.getElementById("ticketsTable");
+                tableBody.innerHTML = ""; // Clear previous data
+
+                tickets.forEach(ticket => {
+                    const row = `<tr>
+                        <td>${ticket.id}</td>
+                        <td>${ticket.issue_type}</td>
+                        <td>${ticket.name}</td>
+                        <td>${ticket.email}</td>
+                        <td>${ticket.priority}</td>
+                        <td>${ticket.branchcode}</td>
+                        <td>${ticket.subject}</td>
+                        <td>${ticket.message}</td>
+                        <td>${new Date(ticket.datetime).toLocaleString()}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Error fetching tickets:", error);
+            }
+        }
+
+        function logout() {
+            alert("Logging out...");
+            window.location.href = "index.html";
+        }
+
+        fetchTickets();
+    </script>
+
+</body>
+
+</html>

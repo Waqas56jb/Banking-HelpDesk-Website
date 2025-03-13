@@ -1,0 +1,34 @@
+// ------------------------------- User side --------------------
+CREATE DATABASE IF NOT EXISTS helpdesk;
+USE helpdesk;
+
+CREATE TABLE helpdesk.support_tickets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    issue_type VARCHAR(50) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    priority ENUM('low', 'medium', 'high') NOT NULL,
+    branchcode INT NOT NULL,
+    address TEXT NOT NULL,
+    user_code VARCHAR(100) NOT NULL UNIQUE,
+    datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    subject VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    attachment1 VARCHAR(255)
+);
+
+
+
+
+
+
+// ----------------------------  Admin --------------------
+
+CREATE TABLE IF NOT EXISTS helpdesk.admins (
+    admin_id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL, -- Hashed password
+    otp VARCHAR(6), -- 6-digit OTP for password reset
+    otp_expiry BIGINT, -- Unix timestamp for OTP expiry
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

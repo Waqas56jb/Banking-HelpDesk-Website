@@ -1,0 +1,52 @@
+
+ISSUES
+Faisal bank complaints
+i)Central,
+ ii)North 
+iii) south
+
+
+
+Faisal bank Up-Link 
+Hardware Requirements------- waqas baht
+
+
+form
+CIID----> BRANCH CODE
+
+MESSAGE----> remarks
+data & time --- auto
+ticket periorty section
+low,med,high
+
+Clickable1
+Clickable1
+Clickable1
+Clickable1
+
+Admin panel
+
+
+amdmin---> full access
+staff----> view access and write
+bank---->view and write
+
+all the tickets by user(as per issue details)
+
+
+
+ticket details:
+in a rows 
+
+ticket status:
+all previledges
+divided by color scheme
+
+database:
+export data into excel
+
+
+
+
+
+
