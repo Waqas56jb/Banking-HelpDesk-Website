@@ -23,12 +23,11 @@ CREATE TABLE helpdesk.support_tickets (
 
 
 // ----------------------------  Admin --------------------
-
-CREATE TABLE IF NOT EXISTS helpdesk.admins (
-    admin_id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL, -- Hashed password
-    otp VARCHAR(6), -- 6-digit OTP for password reset
-    otp_expiry BIGINT, -- Unix timestamp for OTP expiry
+CREATE TABLE helpdesk.admins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    admin_email VARCHAR(100) UNIQUE NOT NULL,
+    admin_name VARCHAR(50) NOT NULL,
+    admin_password VARCHAR(255) NOT NULL,
+    admin_profile_photo VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

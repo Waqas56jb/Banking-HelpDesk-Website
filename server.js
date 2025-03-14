@@ -31,11 +31,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use("/uploads", express.static("uploads"));
-app.use(express.static(".")); // Serve static files (index.html, trace.html)
+app.use(express.static("."));
 
 // File Upload Configuration
 const storage = multer.diskStorage({
-    destination: "uploads/",
+    destination: (req, file, cb) => {
+        const uploadDir = "uploads/";
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir);
+        }
+        cb(null, uploadDir);
+    },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
     },
@@ -70,7 +76,6 @@ async function initializeAuth() {
     }
 }
 
-// Auto-update token on refresh
 oAuth2Client.on("tokens", (tokens) => {
     if (tokens.refresh_token) {
         fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
@@ -79,7 +84,6 @@ oAuth2Client.on("tokens", (tokens) => {
     oAuth2Client.setCredentials(tokens);
 });
 
-// Initialize Gmail API
 const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
 
 // Email Sending Function
@@ -89,7 +93,7 @@ async function sendTicketEmail(to, ticketData) {
     const message = `
         <html>
         <body style="font-family: Arial, sans-serif; color: #333;">
-            <h2 style="color: #00bcd4;">Your Support Ticket</h2>
+            <h2 style="color: #00e676;">Your Support Ticket</h2>
             <p>Thank you for submitting your ticket! Below are the details:</p>
             <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-width: 600px; margin: 20px auto;">
                 <p><strong>Issue Type:</strong> ${ticketData.issue_type}</p>
@@ -98,10 +102,10 @@ async function sendTicketEmail(to, ticketData) {
                 <p><strong>Priority:</strong> ${ticketData.priority}</p>
                 <p><strong>Branch Code:</strong> ${ticketData.branchcode}</p>
                 <p><strong>Address:</strong> ${ticketData.address}</p>
-                <p><strong>User Code (Bank Code):</strong> ${ticketData.user_code}</p>
+                <p><strong>User Code:</strong> ${ticketData.user_code}</p>
                 <p><strong>Subject:</strong> ${ticketData.subject}</p>
                 <p><strong>Message:</strong> ${ticketData.message}</p>
-                ${ticketData.attachment1 ? `<p><strong>Attachment:</strong> ${ticketData.attachment1}</p>` : ""}
+                ${ticketData.attachment1 ? `<p><strong>Attachment:</strong> <a href="http://localhost:3000/uploads/${ticketData.attachment1}">${ticketData.attachment1}</a></p>` : ""}
                 <p><strong>Ticket ID:</strong> ${ticketData.ticket_id}</p>
                 <p><strong>Submission Date:</strong> ${new Date(ticketData.submission_date).toLocaleString()}</p>
             </div>
@@ -139,20 +143,9 @@ async function sendTicketEmail(to, ticketData) {
     }
 }
 
-// Handle Form Submission
+// Ticket Submission
 app.post("/submit-ticket", upload.single("attachment1"), async (req, res) => {
-    const {
-        issue_type,
-        name,
-        email,
-        priority,
-        branchcode,
-        address,
-        user_code,
-        subject,
-        message,
-    } = req.body;
-
+    const { issue_type, name, email, priority, branchcode, address, user_code, subject, message } = req.body;
     const attachment1 = req.file ? req.file.filename : null;
 
     if (!issue_type || !name || !email || !priority || !branchcode || !address || !user_code || !subject || !message) {
@@ -169,59 +162,31 @@ app.post("/submit-ticket", upload.single("attachment1"), async (req, res) => {
             issue_type, name, email, priority, branchcode, address, user_code, subject, message, attachment1
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-
-    const values = [
-        issue_type,
-        name,
-        email,
-        priority,
-        branchcodeInt,
-        address,
-        user_code,
-        subject,
-        message,
-        attachment1,
-    ];
+    const values = [issue_type, name, email, priority, branchcodeInt, address, user_code, subject, message, attachment1];
 
     try {
         await initializeAuth();
-
         const insertResult = await new Promise((resolve, reject) => {
             db.query(sql, values, (err, result) => {
-                if (err) {
-                    console.error("Database insertion error:", err.message);
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
+                if (err) reject(err);
+                else resolve(result);
             });
         });
 
         const ticket_id = insertResult.insertId;
         const ticketData = {
-            issue_type,
-            name,
-            email,
-            priority,
-            branchcode: branchcodeInt,
-            address,
-            user_code,
-            subject,
-            message,
-            attachment1,
-            ticket_id,
-            submission_date: new Date(), // Use current date for email
+            issue_type, name, email, priority, branchcode: branchcodeInt, address, user_code, subject, message, attachment1, ticket_id, submission_date: new Date()
         };
 
         await sendTicketEmail(email, ticketData);
         res.json({ message: "Ticket submitted and email sent successfully!", ticket_id });
     } catch (error) {
-        console.error("Error in submission process:", error.message);
-        res.status(500).json({ message: "Error submitting ticket or sending email: " + error.message });
+        console.error("Error in ticket submission:", error.message);
+        res.status(500).json({ message: "Error submitting ticket: " + error.message });
     }
 });
 
-// New Endpoint: Track Ticket
+// Track Ticket
 app.post("/track-ticket", (req, res) => {
     const { email, ticket_id } = req.body;
 
@@ -238,37 +203,101 @@ app.post("/track-ticket", (req, res) => {
         if (results.length === 0) {
             return res.status(404).json({ message: "No ticket found with this email and ticket ID." });
         }
-        res.json(results[0]); // Return the first (and only) matching ticket
-    });
-});
-app.post("/login", (req, res) => {
-    const { email, password } = req.body;
-    const sql = "SELECT * FROM admins WHERE email = ? AND password = ?";
-
-    db.query(sql, [email, password], (err, result) => {
-        if (err) throw err;
-        if (result.length > 0) {
-            res.json({ 
-                message: "Login Successful!", 
-                redirect: "admin-dashboard.html"  // Ensure this file exists in the same directory
-            });
-        } else {
-            res.status(401).json({ error: "Invalid email or password!" });
-        }
+        res.json(results[0]);
     });
 });
 
-
-// API to fetch all support tickets
+// Fetch All Tickets
 app.get("/api/tickets", (req, res) => {
-    const query = "SELECT * FROM support_tickets ORDER BY datetime DESC";
+    const query = `
+        SELECT ticket_id, issue_type, name, email, priority, branchcode, address, 
+               user_code, subject, message, attachment1, submission_date 
+        FROM support_tickets 
+        ORDER BY submission_date DESC
+    `;
     db.query(query, (err, results) => {
         if (err) {
+            console.error("Error fetching tickets:", err.message);
             return res.status(500).json({ error: err.message });
         }
         res.json(results);
     });
 });
+
+// Delete Ticket
+app.delete("/api/tours/:id", (req, res) => {
+    const { id } = req.params;
+    const sql = "DELETE FROM support_tickets WHERE ticket_id = ?";
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error("Error deleting ticket:", err.message);
+            return res.status(500).json({ error: err.message });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Ticket not found" });
+        }
+        res.json({ message: "Ticket deleted successfully" });
+    });
+});
+
+// Admin Signup
+app.post("/admin/signup", upload.single("admin_profile_photo"), (req, res) => {
+    const { admin_email, admin_name, admin_password } = req.body;
+    const admin_profile_photo = req.file ? req.file.filename : null;
+
+    const sql = "INSERT INTO admins (admin_email, admin_name, admin_password, admin_profile_photo) VALUES (?, ?, ?, ?)";
+    db.query(sql, [admin_email, admin_name, admin_password, admin_profile_photo], (err, result) => {
+        if (err) {
+            console.error("Signup error:", err.message);
+            return res.status(400).json({ error: err.message });
+        }
+        console.log("Admin registered:", { id: result.insertId, admin_email });
+        res.json({ message: "Admin Registered Successfully" });
+    });
+});
+
+// Admin Login
+app.post("/admin/login", (req, res) => {
+    const { admin_email, admin_password } = req.body;
+    if (!admin_email || !admin_password) {
+        return res.status(400).json({ error: "Email and password are required" });
+    }
+    const sql = "SELECT * FROM admins WHERE admin_email = ? AND admin_password = ?";
+    db.query(sql, [admin_email, admin_password], (err, results) => {
+        if (err) return res.status(500).json({ error: "Server error: " + err.message });
+        if (results.length === 0) return res.status(401).json({ error: "Invalid Email or Password" });
+        console.log("Login successful:", { admin_email });
+        res.json({ 
+            message: "Login Successful", 
+            profile: results[0].admin_profile_photo,
+            adminName: results[0].admin_name
+        });
+    });
+});
+
+// Forgot Password
+app.post("/admin/forgot-password", (req, res) => {
+    const { admin_email, newPassword } = req.body;
+
+    if (!admin_email || !newPassword) {
+        return res.status(400).json({ error: "Email and new password are required" });
+    }
+
+    const sql = "UPDATE admins SET admin_password = ? WHERE admin_email = ?";
+    db.query(sql, [newPassword, admin_email], (err, result) => {
+        if (err) {
+            console.error("Forgot password error:", err.message);
+            return res.status(500).json({ error: "Server error: " + err.message });
+        }
+        if (result.affectedRows === 0) {
+            console.error("User not found:", { admin_email });
+            return res.status(404).json({ error: "User not found" });
+        }
+        console.log("Password updated:", { admin_email });
+        res.json({ message: "Password Updated Successfully" });
+    });
+});
+
 // Start Server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

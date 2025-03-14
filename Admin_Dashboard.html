@@ -4,134 +4,619 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard - Support Tickets</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --primary: #00e676;
+            /* Vibrant Green */
+            --secondary: #1c2526;
+            /* Dark Teal */
+            --accent: #ff4081;
+            /* Bright Pink */
+            --background: #0a0f12;
+            /* Deep Charcoal */
+            --card-bg: #1e2a2f;
+            /* Slightly Lighter Teal */
+            --text: #e0f7fa;
+            /* Light Cyan */
+            --shadow: rgba(0, 230, 118, 0.4);
+            /* Green Shadow */
+            --highlight: #ffd740;
+            /* Golden Yellow */
+        }
+
         body {
-            background-color: #121212;
-            color: #fff;
+            background: linear-gradient(135deg, var(--background), var(--secondary));
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
         }
 
         .sidebar {
-            width: 250px;
+            width: 260px;
             height: 100vh;
             position: fixed;
-            background-color: #222;
-            padding: 20px;
-            box-shadow: 2px 0 10px rgba(0, 255, 255, 0.5);
+            background: var(--card-bg);
+            border-right: 3px solid var(--primary);
+            padding: 25px 0;
+            box-shadow: 0 0 25px var(--shadow);
+            z-index: 1000;
+            transition: width 0.4s ease, transform 0.4s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            transform: translateX(-100%);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .sidebar h4 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 35px;
+            font-weight: 700;
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: glow 2s infinite alternate;
         }
 
         .sidebar a {
-            color: #00bcd4;
+            color: var(--primary);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
             text-decoration: none;
-            display: block;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin: 10px 15px;
+            border-radius: 10px;
         }
 
-        .sidebar a:hover {
-            background-color: #0097a7;
+        .sidebar a i {
+            margin-right: 12px;
+            font-size: 1.3rem;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: var(--primary);
+            color: var(--background);
+            box-shadow: 0 5px 15px var(--shadow);
         }
 
         .content {
             margin-left: 260px;
-            padding: 20px;
+            padding: 40px;
+            transition: margin-left 0.4s ease;
         }
 
-        .card-custom {
-            background-color: #222;
-            color: #fff;
-            border: none;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        .content.expanded {
+            margin-left: 0;
         }
 
-        .logout-btn {
-            background-color: red;
-            color: white;
+        .navbar {
+            background: var(--card-bg);
+            border-bottom: 3px solid var(--primary);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 6px 20px var(--shadow);
+            border-radius: 0 0 15px 15px;
+            position: relative;
+        }
+
+        .navbar h3 {
+            color: var(--primary);
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+
+        .navbar .profile {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .navbar .profile .notification {
+            color: var(--highlight);
+            font-size: 1.5rem;
+            margin-right: 15px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar .profile .notification:hover {
+            transform: scale(1.2);
+        }
+
+        .navbar .profile img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            margin-left: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .navbar .profile img:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 15px var(--shadow);
+        }
+
+        .navbar .profile span {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-left: 15px;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
             border: none;
-            padding: 10px;
+            color: var(--primary);
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-50%) scale(1.2);
+        }
+
+        .dashboard-section {
+            margin-top: 40px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px var(--shadow);
+        }
+
+        .card h5 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.3rem;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .chart-card {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        canvas {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 5px 20px var(--shadow);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .ticket-table {
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .table {
+            color: var(--text);
             width: 100%;
-            margin-top: 20px;
-            border-radius: 5px;
+            border-collapse: separate;
+            border-spacing: 0 8px;
         }
 
-        .logout-btn:hover {
-            background-color: darkred;
+        .table th {
+            color: var(--primary);
+            font-weight: 600;
+            background: rgba(0, 230, 118, 0.1);
+            padding: 15px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .table td {
+            vertical-align: middle;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .table tr:hover td {
+            background: rgba(0, 230, 118, 0.15);
+            transition: background 0.3s ease;
+        }
+
+        .btn-danger {
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: #f50057;
+            transform: scale(1.05);
+        }
+
+        .attachment-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .attachment-link:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        h4 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px var(--primary);
+            }
+
+            to {
+                text-shadow: 0 0 15px var(--primary), 0 0 25px var(--shadow);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .content {
+                margin-left: 200px;
+            }
+
+            .content.expanded {
+                margin-left: 0;
+            }
+
+            .chart-card {
+                min-width: 100%;
+            }
+
+            .navbar .profile {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            .navbar .profile .notification {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .navbar .profile img {
+                margin-left: 0;
+                margin-bottom: 10px;
+            }
+
+            .navbar .profile span {
+                margin-left: 0;
+            }
         }
     </style>
 </head>
 
 <body>
-
-    <div class="sidebar">
-        <h3>Admin Panel</h3>
-        <a href="#">Dashboard</a>
-        <a href="#">Manage Users</a>
-        <a href="#">Support Tickets</a>
-        <a href="#">Settings</a>
-        <button class="logout-btn" onclick="logout()">Logout</button>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h4>Admin Panel</h4>
+        <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
-    <div class="content">
-        <h1>Support Tickets</h1>
-        <div class="table-responsive">
-            <table class="table table-dark table-bordered text-center">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Issue Type</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Priority</th>
-                        <th>Branch Code</th>
-                        <th>Subject</th>
-                        <th>Message</th>
-                        <th>Date & Time</th>
-                    </tr>
-                </thead>
-                <tbody id="ticketsTable"></tbody>
-            </table>
+    <!-- Main Content -->
+    <div class="content" id="content">
+        <!-- Navbar -->
+        <div class="navbar fade-in">
+            <button class="toggle-btn" id="toggleBtn"><i class="fas fa-bars"></i></button>
+            <h3>Support Tickets Dashboard</h3>
+            <div class="profile">
+                <i class="fas fa-bell notification" title="Notifications"></i>
+                <img id="profilePhoto" src="http://localhost:3000/uploads/default.png" alt="Profile">
+                <span id="profileName">Admin</span>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div class="dashboard-section fade-in">
+            <h4>Ticket Analytics</h4>
+            <div class="chart-container">
+                <div class="chart-card card">
+                    <h5>Issue Type Distribution</h5>
+                    <canvas id="issueTypeChart"></canvas>
+                </div>
+                <div class="chart-card card">
+                    <h5>Priority Distribution</h5>
+                    <canvas id="priorityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tickets Table -->
+        <div class="ticket-table fade-in">
+            <h4>All Support Tickets</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Issue Type</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Priority</th>
+                            <th>Branch Code</th>
+                            <th>User Code</th>
+                            <th>Subject</th>
+                            <th>Message</th>
+                            <th>Attachment</th>
+                            <th>Submission Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketTableBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        async function fetchTickets() {
-            try {
-                const response = await fetch("http://localhost:5000/api/tickets");
-                const tickets = await response.json();
+        let issueTypeChart, priorityChart;
+        let isSidebarOpen = true;
 
-                const tableBody = document.getElementById("ticketsTable");
-                tableBody.innerHTML = ""; // Clear previous data
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = $('#sidebar');
+            const content = $('#content');
+            if (isSidebarOpen) {
+                sidebar.addClass('collapsed');
+                content.addClass('expanded');
+            } else {
+                sidebar.removeClass('collapsed');
+                content.removeClass('expanded');
+            }
+            isSidebarOpen = !isSidebarOpen;
+        }
 
+        // Load Tickets and Charts
+        function loadDashboard() {
+            $.get('http://localhost:3000/api/tickets', function (tickets) {
+                const tbody = $('#ticketTableBody');
+                tbody.empty();
                 tickets.forEach(ticket => {
-                    const row = `<tr>
-                        <td>${ticket.id}</td>
-                        <td>${ticket.issue_type}</td>
-                        <td>${ticket.name}</td>
-                        <td>${ticket.email}</td>
-                        <td>${ticket.priority}</td>
-                        <td>${ticket.branchcode}</td>
-                        <td>${ticket.subject}</td>
-                        <td>${ticket.message}</td>
-                        <td>${new Date(ticket.datetime).toLocaleString()}</td>
-                    </tr>`;
-                    tableBody.innerHTML += row;
+                    const attachmentLink = ticket.attachment1 ?
+                        `<a href="http://localhost:3000/uploads/${ticket.attachment1}" class="attachment-link" target="_blank">${ticket.attachment1}</a>` :
+                        'None';
+                    tbody.append(`
+                        <tr>
+                            <td>${ticket.ticket_id}</td>
+                            <td>${ticket.issue_type}</td>
+                            <td>${ticket.name}</td>
+                            <td>${ticket.email}</td>
+                            <td>${ticket.priority}</td>
+                            <td>${ticket.branchcode}</td>
+                            <td>${ticket.user_code}</td>
+                            <td>${ticket.subject}</td>
+                            <td>${ticket.message}</td>
+                            <td>${attachmentLink}</td>
+                            <td>${new Date(ticket.submission_date).toLocaleString()}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteTicket(${ticket.ticket_id})">Delete</button>
+                            </td>
+                        </tr>
+                    `);
                 });
-            } catch (error) {
-                console.error("Error fetching tickets:", error);
+
+                // Aggregate data for charts
+                const issueTypes = {};
+                const priorities = {};
+                tickets.forEach(ticket => {
+                    issueTypes[ticket.issue_type] = (issueTypes[ticket.issue_type] || 0) + 1;
+                    priorities[ticket.priority] = (priorities[ticket.priority] || 0) + 1;
+                });
+
+                // Destroy existing charts if they exist
+                if (issueTypeChart) issueTypeChart.destroy();
+                if (priorityChart) priorityChart.destroy();
+
+                // Issue Type Chart
+                const issueCtx = document.getElementById('issueTypeChart').getContext('2d');
+                issueTypeChart = new Chart(issueCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(issueTypes),
+                        datasets: [{
+                            data: Object.values(issueTypes),
+                            backgroundColor: ['#00e676', '#ff4081', '#ffd740', '#00b0ff', '#e91e63', '#7c4dff'],
+                            borderWidth: 2,
+                            borderColor: '#1e2a2f',
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        animation: { animateScale: true, animateRotate: true },
+                        plugins: {
+                            legend: { position: 'top', labels: { color: '#e0f7fa', font: { size: 14, family: 'Poppins' } } },
+                            title: { display: true, text: 'Issue Types', color: '#00e676', font: { size: 16, weight: '600' } }
+                        }
+                    }
+                });
+
+                // Priority Chart
+                const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+                priorityChart = new Chart(priorityCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(priorities),
+                        datasets: [{
+                            data: Object.values(priorities),
+                            backgroundColor: ['#ff4081', '#ffd740', '#00e676'],
+                            borderWidth: 2,
+                            borderColor: '#1e2a2f',
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        animation: { animateScale: true, animateRotate: true },
+                        plugins: {
+                            legend: { position: 'top', labels: { color: '#e0f7fa', font: { size: 14, family: 'Poppins' } } },
+                            title: { display: true, text: 'Priorities', color: '#00e676', font: { size: 16, weight: '600' } }
+                        }
+                    }
+                });
+
+                // Load admin profile from localStorage
+                const adminName = localStorage.getItem('adminName') || 'Admin';
+                const adminPhoto = localStorage.getItem('adminPhoto') || 'http://localhost:3000/uploads/default.png';
+                $('#profileName').text(adminName);
+                $('#profilePhoto').attr('src', adminPhoto);
+
+            }).fail(function (xhr) {
+                console.error("Error fetching tickets:", xhr.responseJSON);
+                alert("Failed to load tickets: " + (xhr.responseJSON?.error || "Unknown error"));
+            });
+        }
+
+        // Delete Ticket
+        function deleteTicket(id) {
+            if (confirm('Are you sure you want to delete this ticket?')) {
+                $.ajax({
+                    url: `http://localhost:3000/api/tickets/${id}`,
+                    method: 'DELETE',
+                    success: function (response) {
+                        alert(response.message);
+                        loadDashboard();
+                    },
+                    error: function (xhr) {
+                        alert('Error deleting ticket: ' + (xhr.responseJSON?.error || "Unknown error"));
+                    }
+                });
             }
         }
 
+        // Logout
         function logout() {
             alert("Logging out...");
-            window.location.href = "index.html";
+            localStorage.removeItem('adminName');
+            localStorage.removeItem('adminPhoto');
+            window.location.href = 'Admin_Login.html';
         }
 
-        fetchTickets();
-    </script>
+        // Toggle Sidebar Event and Initial Load
+        $(document).ready(function () {
+            $('#toggleBtn').click(toggleSidebar);
+            loadDashboard();
 
+            // Notification click (placeholder)
+            $('.notification').click(function () {
+                alert('Notifications feature coming soon!');
+            });
+        });
+    </script>
 </body>
 
 </html>
