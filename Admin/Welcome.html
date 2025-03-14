@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk - Welcome</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #f0f8ff;
+            color: #000;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background-color: #007bff;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.5);
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 140px);
+            padding: 20px;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background-color: white;
+            width: 350px;
+            height: 300px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 123, 255, 0.3);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 0 30px rgba(0, 123, 255, 0.6);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #007bff;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            opacity: 0.8;
+            flex-grow: 1;
+        }
+
+        .card-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .card-btn:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .card {
+                width: 100%;
+                max-width: 350px;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1>🚀 Welcome to Helpdesk Support</h1>
+        <p>Your one-stop solution for all support needs. Register a complaint or track your ticket with ease.</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-icon">
+                <i class="fas fa-headset"></i>
+            </div>
+            <h2>Register a Complaint</h2>
+            <p>Encountering an issue? Submit a ticket and let our team assist you promptly.</p>
+            <a href="Complaint.html" class="card-btn">Submit Ticket</a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h2>Track Your Ticket</h2>
+            <p>Check the status of your request by entering your ticket details.</p>
+            <a href="trace.html" class="card-btn">Track Now</a>
+        </div>
+    </div>
+</body>
+
+</html>

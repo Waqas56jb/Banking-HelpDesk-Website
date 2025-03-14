@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk - Support Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            background-color: #f0f8ff;
+            color: #000;
+            font-family: Arial, sans-serif;
+        }
+
+        .helpdesk-header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 255, 0.3);
+            transition: all 0.5s ease;
+        }
+
+        h2 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            display: block;
+        }
+
+        select,
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 1rem;
+            background-color: #f8f9fa;
+            color: #000;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="helpdesk-header">
+        <h1>❓ How Can We Assist You?</h1>
+        <p>Select an issue type to continue.</p>
+    </header>
+
+    <div class="form-container" id="issueFormContainer">
+        <form id="issueForm">
+            <h2>Select Your Issue</h2>
+            <div class="form-group">
+                <label for="issueType">Choose an Issue:</label>
+                <select id="issueType" name="issueType" required>
+                    <option value="" disabled selected>-- Choose an Issue --</option>
+                    <optgroup label="Faisal Bank Complaints">
+                        <option value="central">Central</option>
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                    </optgroup>
+                    <option value="uplink">Faisal Bank Up-Link</option>
+                    <option value="hardware">Hardware Requirements</option>
+                </select>
+            </div>
+            <button type="submit">Next →</button>
+        </form>
+    </div>
+
+    <div class="form-container hidden" id="ticketFormContainer">
+        <form id="ticketForm" enctype="multipart/form-data">
+            <h2>📝 Submit a Support Ticket</h2>
+            <input type="hidden" id="issueTypeHidden" name="issue_type">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="priority">Priority:</label>
+                <select id="priority" name="priority" required>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="branchcode">Branch Code:</label>
+                <input type="text" id="branchcode" name="branchcode" required>
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" required>
+            </div>
+            <div class="form-group">
+                <label for="user_code">User Code (Bank Code):</label>
+                <input type="text" id="user_code" name="user_code" required>
+            </div>
+            <div class="form-group">
+                <label for="subject">Subject:</label>
+                <input type="text" id="subject" name="subject" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>📎 Attachments (screenshot):</label>
+                <input type="file" name="attachment1" accept=".jpg,.png,.pdf,.doc,.docx">
+            </div>
+            <button type="submit">Submit Ticket</button>
+        </form>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#issueForm").submit(function (e) {
+                e.preventDefault();
+                let selectedIssue = $("#issueType").val();
+                if (selectedIssue) {
+                    $("#issueTypeHidden").val(selectedIssue);
+                    $("#issueFormContainer").fadeOut(500, function () {
+                        $("#ticketFormContainer").fadeIn(500);
+                    });
+                } else {
+                    alert("Please select an issue before proceeding.");
+                }
+            });
+
+            $("#ticketForm").submit(function (e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+
+                $.ajax({
+                    url: "http://localhost:3000/submit-ticket",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        alert("Ticket submitted and email sent successfully! Your ticket ID is: " + response.ticket_id);
+                        $("#ticketForm")[0].reset();
+                        $("#ticketFormContainer").fadeOut(500, function () {
+                            $("#issueFormContainer").fadeIn(500);
+                        });
+                    },
+                    error: function (err) {
+                        alert("Error submitting ticket. Please try again.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

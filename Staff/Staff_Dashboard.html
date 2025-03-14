@@ -7,6 +7,7 @@
     <title>Staff Ticket Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
     <style>
         body {
             background: linear-gradient(to bottom, #007bff, #ffffff);
@@ -39,6 +40,9 @@
         <h2 class="text-center mb-4">Staff Ticket Dashboard</h2>
         <div class="row mb-3">
             <div class="col-md-3">
+                <input type="text" id="searchTicketId" class="form-control" placeholder="Search by Ticket ID">
+            </div>
+            <div class="col-md-3">
                 <input type="text" id="searchEmail" class="form-control" placeholder="Search by Email">
             </div>
             <div class="col-md-3">
@@ -49,96 +53,90 @@
                     <option value="">Filter by Issue Type</option>
                     <option value="Technical">Technical</option>
                     <option value="Billing">Billing</option>
+                    <option value="Network">Network</option>
                     <option value="Other">Other</option>
                 </select>
             </div>
+        </div>
+        <div class="row mb-3">
             <div class="col-md-3">
                 <select id="filterPriority" class="form-control">
                     <option value="">Filter by Priority</option>
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
                 </select>
             </div>
         </div>
+        <button class="btn btn-success mb-3" id="downloadExcel">Download Excel</button>
         <div class="table-container">
-            <table class="table table-bordered table-striped">
+            <table class="table table-bordered table-striped" id="ticketTable">
                 <thead>
                     <tr>
                         <th>Ticket ID</th>
+                        <th>Name</th>
                         <th>Email</th>
                         <th>User ID</th>
                         <th>Issue Type</th>
                         <th>Priority</th>
+                        <th>Branch Code</th>
+                        <th>Address</th>
+                        <th>Date/Time</th>
                         <th>Subject</th>
-                        <th>Actions</th>
+                        <th>Message</th>
+                        <th>Attachment</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="ticketTableBody">
-                </tbody>
+                <tbody id="ticketTableBody"></tbody>
             </table>
         </div>
     </div>
-
     <script>
         function fetchTickets() {
-            $.get("http://localhost:3000/api/tickets", function (tickets) {
+            $.get("http://localhost:3000/api/getAllTickets", function (tickets) {
                 let tableRows = "";
                 tickets.forEach(ticket => {
                     tableRows += `<tr>
-                        <td>${ticket.ticket_id}</td>
-                        <td>${ticket.email}</td>
-                        <td>${ticket.user_code}</td>
-                        <td>${ticket.issue_type}</td>
-                        <td>${ticket.priority}</td>
-                        <td>${ticket.subject}</td>
-                        <td><button class='btn btn-danger' onclick='deleteTicket(${ticket.ticket_id})'>Delete</button></td>
+                        <td>${ticket.ticket_id || "N/A"}</td>
+                        <td>${ticket.name || "N/A"}</td>
+                        <td>${ticket.email || "N/A"}</td>
+                        <td>${ticket.user_code || "N/A"}</td>
+                        <td>${ticket.issue_type || "N/A"}</td>
+                        <td>${ticket.priority || "N/A"}</td>
+                        <td>${ticket.branchcode || "N/A"}</td>
+                        <td>${ticket.address || "N/A"}</td>
+                        <td>${ticket.submission_date || "N/A"}</td>
+                        <td>${ticket.subject || "N/A"}</td>
+                        <td>${ticket.message || "N/A"}</td>
+                        <td>${ticket.attachment1 ? `<a href="${ticket.attachment1}" target="_blank">View</a>` : "No Attachment"}</td>
+                        <td><button class="btn btn-danger btn-sm" onclick="deleteTicket('${ticket._id}')">Delete</button></td>
                     </tr>`;
                 });
                 $("#ticketTableBody").html(tableRows);
             });
         }
-
         function deleteTicket(ticketId) {
-            $.ajax({
-                url: `http://localhost:3000/api/tickets/${ticketId}`,
-                type: 'DELETE',
-                success: function (response) {
-                    alert(response.message);
-                    fetchTickets();
-                },
-                error: function (err) {
-                    alert('Error deleting ticket');
-                }
-            });
-        }
-
-        $(document).ready(function () {
-            fetchTickets();
-
-            $("#searchEmail, #searchUserId, #filterIssue, #filterPriority").on("input change", function () {
-                const email = $("#searchEmail").val().toLowerCase();
-                const userId = $("#searchUserId").val().toLowerCase();
-                const issueType = $("#filterIssue").val();
-                const priority = $("#filterPriority").val();
-
-                $("#ticketTableBody tr").each(function () {
-                    const row = $(this);
-                    const rowData = row.children("td");
-                    const rowEmail = rowData.eq(1).text().toLowerCase();
-                    const rowUserId = rowData.eq(2).text().toLowerCase();
-                    const rowIssueType = rowData.eq(3).text();
-                    const rowPriority = rowData.eq(4).text();
-
-                    if ((email && !rowEmail.includes(email)) ||
-                        (userId && !rowUserId.includes(userId)) ||
-                        (issueType && rowIssueType !== issueType) ||
-                        (priority && rowPriority !== priority)) {
-                        row.hide();
-                    } else {
-                        row.show();
+            if (confirm("Are you sure you want to delete this ticket?")) {
+                $.ajax({
+                    url: `http://localhost:3000/api/deleteTicket/${ticketId}`,
+                    type: 'DELETE',
+                    success: function (response) {
+                        alert(response.message);
+                        fetchTickets();
+                    },
+                    error: function () {
+                        alert('Error deleting ticket');
                     }
                 });
+            }
+        }
+        $(document).ready(function () {
+            fetchTickets();
+            $("#downloadExcel").click(function () {
+                let table = document.getElementById("ticketTable");
+                let wb = XLSX.utils.table_to_book(table, { sheet: "Tickets" });
+                XLSX.writeFile(wb, "Tickets.xlsx");
             });
         });
     </script>
