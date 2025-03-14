@@ -225,18 +225,18 @@ app.get("/api/tickets", (req, res) => {
 });
 
 // Delete Ticket
-app.delete("/api/tours/:id", (req, res) => {
-    const { id } = req.params;
-    const sql = "DELETE FROM support_tickets WHERE ticket_id = ?";
-    db.query(sql, [id], (err, result) => {
+app.delete('/api/tickets/:id', (req, res) => {
+    const ticketId = req.params.id;
+    const sql = 'DELETE FROM support_tickets WHERE ticket_id = ?';
+    db.query(sql, [ticketId], (err, result) => {
         if (err) {
-            console.error("Error deleting ticket:", err.message);
-            return res.status(500).json({ error: err.message });
+            console.error('Database error:', err);
+            return res.status(500).json({ error: 'Database error' });
         }
         if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "Ticket not found" });
+            return res.status(404).json({ error: 'Ticket not found' });
         }
-        res.json({ message: "Ticket deleted successfully" });
+        res.json({ message: 'Ticket deleted successfully' });
     });
 });
 

@@ -260,7 +260,7 @@
             padding: 15px;
             background: rgba(255, 255, 255, 0.03);
             border-bottom: 1px solid rgba(0, 230, 118, 0.2);
-            color:#ffffff;
+            color: #ffffff;
         }
 
         .table tr:hover td {
@@ -403,10 +403,8 @@
     <div class="sidebar" id="sidebar">
         <h4>Admin Panel</h4>
         <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-        <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Staff</a>
-        <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> banking</a>
-
-
+        <a href="#"><i class="fas fa-tachometer-alt"></i> Staff</a>
+        <a href="#"><i class="fas fa-tachometer-alt"></i> banking</a>
         <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
@@ -495,7 +493,7 @@
                         `<a href="http://localhost:3000/uploads/${ticket.attachment1}" class="attachment-link" target="_blank">${ticket.attachment1}</a>` :
                         'None';
                     tbody.append(`
-                        <tr>
+                        <tr data-ticket-id="${ticket.ticket_id}">
                             <td>${ticket.ticket_id}</td>
                             <td>${ticket.issue_type}</td>
                             <td>${ticket.name}</td>
@@ -591,13 +589,19 @@
             if (confirm('Are you sure you want to delete this ticket?')) {
                 $.ajax({
                     url: `http://localhost:3000/api/tickets/${id}`,
-                    method: 'DELETE',
+                    type: 'DELETE', // Changed from 'method' to 'type' for jQuery compatibility
                     success: function (response) {
-                        alert(response.message);
-                        loadDashboard();
+                        if (response.message) {
+                            alert(response.message); // Show success message from server
+                            $(`tr[data-ticket-id="${id}"]`).remove(); // Remove the row immediately
+                            loadDashboard(); // Refresh the dashboard to update charts
+                        } else {
+                            alert('Ticket deleted, but no message returned.');
+                        }
                     },
                     error: function (xhr) {
-                        alert('Error deleting ticket: ' + (xhr.responseJSON?.error || "Unknown error"));
+                        console.error("Error deleting ticket:", xhr.responseJSON || xhr.statusText);
+                        alert('Error deleting ticket: ' + (xhr.responseJSON?.error || xhr.statusText || 'Unknown error'));
                     }
                 });
             }
