@@ -330,6 +330,38 @@ app.post('/reset-password', (req, res) => {
     });
 });
  
+//-------------------------- forget admin password ------------
+// ✅ Verify Admin Email (Check if it exists)
+app.post('/admin/forgetpassword/api', (req, res) => {
+    const { admin_email } = req.body;
+
+    db.query('SELECT * FROM admins WHERE admin_email = ?', [admin_email], (err, results) => {
+        if (err) return res.status(500).json({ message: 'Database error' });
+        if (results.length === 0) return res.status(404).json({ message: 'Admin email not found' });
+
+        res.json({ message: 'Email verified. You can reset your password.' });
+    });
+});
+
+// ✅ Change Password
+app.post('/admin/reset', (req, res) => {
+    const { admin_email, newPassword, confirmPassword } = req.body;
+
+    if (!admin_email || !newPassword || !confirmPassword) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({ message: 'Passwords do not match' });
+    }
+
+    db.query('UPDATE admins SET admin_password = ? WHERE admin_email = ?', 
+    [newPassword, admin_email], (err) => {
+        if (err) return res.status(500).json({ message: 'Error updating password' });
+        res.json({ message: 'Password changed successfully' });
+    });
+});
+
 // Start Server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
