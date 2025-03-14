@@ -297,7 +297,30 @@ app.post("/admin/forgot-password", (req, res) => {
         res.json({ message: "Password Updated Successfully" });
     });
 });
+//-------------------------- Staff side ------------------
+app.post('/signup', (req, res) => {
+    const { name, email, password } = req.body;
+    db.query('INSERT INTO staff (name, email, password) VALUES (?, ?, ?)', [name, email, password], (err) => {
+        if (err) return res.json({ success: false, message: 'Error registering user' });
+        res.json({ success: true, message: 'User registered successfully' });
+    });
+});
 
+app.post('/login', (req, res) => {
+    const { email, password } = req.body;
+    db.query('SELECT * FROM staff WHERE email = ? AND password = ?', [email, password], (err, results) => {
+        if (err || results.length === 0) return res.json({ success: false, message: 'Invalid credentials' });
+        res.json({ success: true, message: 'Login successful' });
+    });
+});
+
+app.post('/forgot-password', (req, res) => {
+    const { email } = req.body;
+    db.query('SELECT * FROM staff WHERE email = ?', [email], (err, results) => {
+        if (err || results.length === 0) return res.json({ success: false, message: 'Email not found' });
+        res.json({ success: true, message: 'Password reset link sent to email' });
+    });
+});
 // Start Server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
