@@ -314,13 +314,22 @@ app.post('/login', (req, res) => {
     });
 });
 
-app.post('/forgot-password', (req, res) => {
+app.post('/verify-email', (req, res) => {
     const { email } = req.body;
     db.query('SELECT * FROM staff WHERE email = ?', [email], (err, results) => {
         if (err || results.length === 0) return res.json({ success: false, message: 'Email not found' });
-        res.json({ success: true, message: 'Password reset link sent to email' });
+        res.json({ success: true, message: 'Email verified' });
     });
 });
+
+app.post('/reset-password', (req, res) => {
+    const { email, newPassword } = req.body;
+    db.query('UPDATE staff SET password = ? WHERE email = ?', [newPassword, email], (err) => {
+        if (err) return res.json({ success: false, message: 'Error updating password' });
+        res.json({ success: true, message: 'Password updated successfully' });
+    });
+});
+
 // Start Server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
