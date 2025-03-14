@@ -164,19 +164,20 @@
         }
 
         .toggle-btn {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
             background: transparent;
             border: none;
             color: var(--primary);
             font-size: 1.8rem;
             cursor: pointer;
             transition: transform 0.3s ease;
-            padding: 10px 25px;
-            width: 100%;
-            text-align: left;
         }
 
         .toggle-btn:hover {
-            transform: scale(1.2);
+            transform: translateY(-50%) scale(1.2);
         }
 
         .dashboard-section {
@@ -245,9 +246,9 @@
         }
 
         .table th {
-            color: var(--primary);
+            color: white;
             font-weight: 600;
-            background: rgba(0, 230, 118, 0.1);
+            background: rgb(21, 23, 22);
             padding: 15px;
             text-transform: uppercase;
             font-size: 0.9rem;
@@ -257,11 +258,9 @@
         .table td {
             vertical-align: middle;
             padding: 15px;
-            background: rgba(255, 255, 255, 0.9);
-            /* Changed to white for visibility */
+            background: rgba(255, 255, 255, 0.03);
             border-bottom: 1px solid rgba(0, 230, 118, 0.2);
-            color: #0a0f12;
-            /* Dark text for contrast on white */
+            color:#ffffff;
         }
 
         .table tr:hover td {
@@ -402,11 +401,12 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <button class="toggle-btn" id="toggleBtn"><i class="fas fa-bars"></i></button>
         <h4>Admin Panel</h4>
-        <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Admin</a>
-        <a href="staff.html"><i class="fas fa-users"></i> Staff</a>
-        <a href="banking.html"><i class="fas fa-university"></i> Banking</a>
+        <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Staff</a>
+        <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> banking</a>
+
+
         <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
@@ -414,6 +414,7 @@
     <div class="content" id="content">
         <!-- Navbar -->
         <div class="navbar fade-in">
+            <button class="toggle-btn" id="toggleBtn"><i class="fas fa-bars"></i></button>
             <h3>Support Tickets Dashboard</h3>
             <div class="profile">
                 <i class="fas fa-bell notification" title="Notifications"></i>
@@ -540,7 +541,7 @@
                         }]
                     },
                     options: {
-                        responsive: true;
+                        responsive: true,
                         animation: { animateScale: true, animateRotate: true },
                         plugins: {
                             legend: { position: 'top', labels: { color: '#e0f7fa', font: { size: 14, family: 'Poppins' } } },
@@ -564,7 +565,7 @@
                         }]
                     },
                     options: {
-                        responsive: true;
+                        responsive: true,
                         animation: { animateScale: true, animateRotate: true },
                         plugins: {
                             legend: { position: 'top', labels: { color: '#e0f7fa', font: { size: 14, family: 'Poppins' } } },
