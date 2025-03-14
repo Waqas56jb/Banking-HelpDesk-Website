@@ -85,7 +85,7 @@
 
 <body>
     <header class="helpdesk-header">
-        <h1>❓ How Can We Assist You?</h1>
+        <h1>How Can We Assist You?</h1>
         <p>Select an issue type to continue.</p>
     </header>
 
@@ -172,7 +172,7 @@
                 }
             });
 
-            $("#ticketForm").submit(function (e) {
+             $("#ticketForm").submit(function (e) {
                 e.preventDefault();
                 let formData = new FormData(this);
 
@@ -184,16 +184,14 @@
                     contentType: false,
                     success: function (response) {
                         alert("Ticket submitted and email sent successfully! Your ticket ID is: " + response.ticket_id);
-                        $("#ticketForm")[0].reset();
-                        $("#ticketFormContainer").fadeOut(500, function () {
-                            $("#issueFormContainer").fadeIn(500);
-                        });
+                        window.location.href = "trace.html";  // Redirect to landing page
                     },
                     error: function (err) {
                         alert("Error submitting ticket. Please try again.");
                     }
                 });
             });
+
         });
     </script>
 </body>
