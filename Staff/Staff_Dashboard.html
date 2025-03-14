@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Ticket Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #007bff, #ffffff);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+        }
+
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .btn-danger {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2 class="text-center mb-4">Staff Ticket Dashboard</h2>
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <input type="text" id="searchEmail" class="form-control" placeholder="Search by Email">
+            </div>
+            <div class="col-md-3">
+                <input type="text" id="searchUserId" class="form-control" placeholder="Search by User ID">
+            </div>
+            <div class="col-md-3">
+                <select id="filterIssue" class="form-control">
+                    <option value="">Filter by Issue Type</option>
+                    <option value="Technical">Technical</option>
+                    <option value="Billing">Billing</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select id="filterPriority" class="form-control">
+                    <option value="">Filter by Priority</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+        </div>
+        <div class="table-container">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Email</th>
+                        <th>User ID</th>
+                        <th>Issue Type</th>
+                        <th>Priority</th>
+                        <th>Subject</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ticketTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function fetchTickets() {
+            $.get("http://localhost:3000/api/tickets", function (tickets) {
+                let tableRows = "";
+                tickets.forEach(ticket => {
+                    tableRows += `<tr>
+                        <td>${ticket.ticket_id}</td>
+                        <td>${ticket.email}</td>
+                        <td>${ticket.user_code}</td>
+                        <td>${ticket.issue_type}</td>
+                        <td>${ticket.priority}</td>
+                        <td>${ticket.subject}</td>
+                        <td><button class='btn btn-danger' onclick='deleteTicket(${ticket.ticket_id})'>Delete</button></td>
+                    </tr>`;
+                });
+                $("#ticketTableBody").html(tableRows);
+            });
+        }
+
+        function deleteTicket(ticketId) {
+            $.ajax({
+                url: `http://localhost:3000/api/tickets/${ticketId}`,
+                type: 'DELETE',
+                success: function (response) {
+                    alert(response.message);
+                    fetchTickets();
+                },
+                error: function (err) {
+                    alert('Error deleting ticket');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            fetchTickets();
+
+            $("#searchEmail, #searchUserId, #filterIssue, #filterPriority").on("input change", function () {
+                const email = $("#searchEmail").val().toLowerCase();
+                const userId = $("#searchUserId").val().toLowerCase();
+                const issueType = $("#filterIssue").val();
+                const priority = $("#filterPriority").val();
+
+                $("#ticketTableBody tr").each(function () {
+                    const row = $(this);
+                    const rowData = row.children("td");
+                    const rowEmail = rowData.eq(1).text().toLowerCase();
+                    const rowUserId = rowData.eq(2).text().toLowerCase();
+                    const rowIssueType = rowData.eq(3).text();
+                    const rowPriority = rowData.eq(4).text();
+
+                    if ((email && !rowEmail.includes(email)) ||
+                        (userId && !rowUserId.includes(userId)) ||
+                        (issueType && rowIssueType !== issueType) ||
+                        (priority && rowPriority !== priority)) {
+                        row.hide();
+                    } else {
+                        row.show();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
