@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Login - Blue & White Theme</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #007bff, #ffffff);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 250px;
+            padding: 20px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0px 0px 20px rgba(0, 0, 255, 0.4);
+        }
+
+        .card h3 {
+            font-size: 22px;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .card .btn {
+            background-color: #007bff;
+            color: white;
+            border-radius: 10px;
+            width: 100%;
+        }
+
+        .card .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="card">
+            <h3>Admin</h3>
+            <p>Login to manage the system</p>
+            <a href="AdminLogin.html" class="btn">Login</a>
+        </div>
+
+        <div class="card">
+            <h3>Staff</h3>
+            <p>Access your dashboard</p>
+            <a href="staff-login.html" class="btn">Login</a>
+        </div>
+
+        <div class="card">
+            <h3>Banker</h3>
+            <p>Manage financial records</p>
+            <a href="banker-login.html" class="btn">Login</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

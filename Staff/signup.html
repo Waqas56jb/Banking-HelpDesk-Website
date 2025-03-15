@@ -61,9 +61,6 @@
             <input type="password" id="password" class="form-control" placeholder="Password" required>
             <button type="submit" class="btn btn-primary">Signup</button>
         </form>
-        <div class="links mt-3">
-            <a href="login.html">Already have an account? Login</a>
-        </div>
     </div>
 
     <script>
@@ -82,7 +79,6 @@
                 const data = await response.json();
                 if (data.success) {
                     alert("Signup successful");
-                    window.location.href = "login.html";
                 } else {
                     alert("Signup failed");
                 }
