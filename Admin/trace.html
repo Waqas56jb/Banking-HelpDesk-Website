@@ -121,8 +121,8 @@
         $(document).ready(function () {
             $("#trackForm").submit(function (e) {
                 e.preventDefault();
-                const email = $("#email").val();
-                const ticket_id = $("#ticket_id").val();
+                const email = $("#email").val().trim();
+                const ticket_id = $("#ticket_id").val().trim();
 
                 if (!email || !ticket_id) {
                     $("#errorMessage").text("Please provide both email and ticket ID.").show();
@@ -136,25 +136,33 @@
                     data: JSON.stringify({ email, ticket_id }),
                     contentType: "application/json",
                     success: function (response) {
+                        console.log("Server response:", response); // Debug log
                         $("#ticketDashboard").fadeIn(500);
                         $("#errorMessage").hide();
-                        $("#issue_type").text(response.issue_type);
-                        $("#name").text(response.name);
-                        $("#email_display").text(response.email);
-                        $("#priority").text(response.priority);
-                        $("#branchcode").text(response.branchcode);
-                        $("#address").text(response.address);
-                        $("#user_code").text(response.user_code);
-                        $("#subject").text(response.subject);
-                        $("#message").text(response.message);
+
+                        $("#issue_type").text(response.issue_type || "N/A");
+                        $("#name").text(response.name || "N/A");
+                        $("#email_display").text(response.email || "N/A");
+                        $("#priority").text(response.priority || "N/A");
+                        $("#branchcode").text(response.branchcode || "N/A");
+                        $("#address").text(response.address || "N/A");
+                        $("#user_code").text(response.user_code || "N/A");
+                        $("#subject").text(response.subject || "N/A");
+                        $("#message").text(response.message || "N/A");
                         $("#attachment1").text(response.attachment1 || "None");
-                        $("#ticket_id_display").text(response.id);
-                        $("#submission_date").text(new Date(response.datetime).toLocaleString());
-                        $("#status").text(response.status || 'Under Working');
+                        $("#ticket_id_display").text(response.ticket_id || "N/A");
+                        $("#submission_date").text(
+                            response.submission_date ?
+                                new Date(response.submission_date).toLocaleString() : "N/A"
+                        );
+                        $("#status").text(response.status || "Under Working");
                     },
                     error: function (err) {
+                        console.error("Error response:", err.responseJSON); // Debug log
                         $("#ticketDashboard").hide();
-                        $("#errorMessage").text(err.responseJSON?.message || "Error tracking ticket. Please try again.").fadeIn(500);
+                        $("#errorMessage").text(
+                            err.responseJSON?.message || "Error tracking ticket. Please try again."
+                        ).fadeIn(500);
                     }
                 });
             });
