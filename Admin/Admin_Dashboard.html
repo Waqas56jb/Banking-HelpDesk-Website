@@ -13,22 +13,22 @@
     <!-- For Excel export -->
     <style>
         :root {
-            --primary: #00e676;
-            /* Vibrant Green */
-            --secondary: #1c2526;
-            /* Dark Teal */
+            --primary: #007bff;
+            /* Blue */
+            --secondary: #ffffff;
+            /* White */
             --accent: #ff4081;
-            /* Bright Pink */
-            --background: #0a0f12;
-            /* Deep Charcoal */
-            --card-bg: #1e2a2f;
-            /* Slightly Lighter Teal */
-            --text: #e0f7fa;
-            /* Light Cyan */
-            --shadow: rgba(0, 230, 118, 0.4);
-            /* Green Shadow */
-            --highlight: #ffd740;
-            /* Golden Yellow */
+            /* Bright Pink (retained for contrast) */
+            --background: #007bff;
+            /* Blue gradient start */
+            --card-bg: #ffffff;
+            /* White container */
+            --text: #007bff;
+            /* Blue text */
+            --shadow: rgba(0, 123, 255, 0.4);
+            /* Blue shadow */
+            --highlight: #ffffff;
+            /* White for hover effects */
         }
 
         body {
@@ -92,7 +92,7 @@
         .sidebar a:hover,
         .sidebar a.active {
             background: var(--primary);
-            color: var(--background);
+            color: var(--secondary);
             box-shadow: 0 5px 15px var(--shadow);
         }
 
@@ -133,7 +133,7 @@
         }
 
         .navbar .profile .notification {
-            color: var(--highlight);
+            color: var(--primary);
             font-size: 1.5rem;
             margin-right: 15px;
             cursor: pointer;
@@ -200,7 +200,8 @@
         }
 
         .sidebar-toggle-btn:hover span {
-            background: var(--highlight);
+            background: #0056b3;
+            /* Darker blue */
             box-shadow: 0 0 5px var(--shadow);
         }
 
@@ -282,9 +283,9 @@
         }
 
         .table th {
-            color: white;
+            color: var(--secondary);
             font-weight: 600;
-            background: rgb(21, 23, 22);
+            background: var(--primary);
             padding: 15px;
             text-transform: uppercase;
             font-size: 0.9rem;
@@ -294,13 +295,14 @@
         .table td {
             vertical-align: middle;
             padding: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid rgba(0, 230, 118, 0.2);
-            color: #ffffff;
+            background: rgba(0, 123, 255, 0.1);
+            /* Light blue tint */
+            border-bottom: 1px solid rgba(0, 123, 255, 0.2);
+            color: var(--text);
         }
 
         .table tr:hover td {
-            background: rgba(0, 230, 118, 0.15);
+            background: rgba(0, 123, 255, 0.2);
             transition: background 0.3s ease;
         }
 
@@ -326,7 +328,8 @@
         }
 
         .attachment-link:hover {
-            color: var(--accent);
+            color: #0056b3;
+            /* Darker blue */
             text-decoration: underline;
         }
 
@@ -370,7 +373,7 @@
 
         .btn-custom {
             background: var(--primary);
-            color: var(--background);
+            color: var(--secondary);
             border: none;
             border-radius: 8px;
             padding: 10px 20px;
@@ -379,7 +382,8 @@
         }
 
         .btn-custom:hover {
-            background: #00c853;
+            background: #0056b3;
+            /* Darker blue */
             transform: scale(1.05);
         }
 
@@ -491,7 +495,7 @@
         </button>
         <h4>Admin Panel</h4>
         <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-        <a href="./Staff/login.html"><i class="fas fa-tachometer-alt"></i> Staff</a>
+        <a href="../Staff/signup.html"><i class="fas fa-tachometer-alt"></i> Staff</a>
         <a href="#"><i class="fas fa-tachometer-alt"></i> banking</a>
         <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
@@ -645,9 +649,9 @@
                         labels: Object.keys(issueTypes),
                         datasets: [{
                             data: Object.values(issueTypes),
-                            backgroundColor: ['#00e676', '#ff4081', '#ffd740', '#00b0ff', '#e91e63', '#7c4dff'],
+                            backgroundColor: ['#007bff', '#ff4081', '#000', '#00b0ff', '#e91e63', '#7c4dff'],
                             borderWidth: 2,
-                            borderColor: '#1e2a2f',
+                            borderColor: '#ffffff',
                             hoverOffset: 10
                         }]
                     },
@@ -655,8 +659,8 @@
                         responsive: true,
                         animation: { animateScale: true, animateRotate: true },
                         plugins: {
-                            legend: { position: 'top', labels: { color: '#e0f7fa', font: { size: 14, family: 'Poppins' } } },
-                            title: { display: true, text: 'Issue Types', color: '#00e676', font: { size: 16, weight: '600' } }
+                            legend: { position: 'top', labels: { color: '#007bff', font: { size: 14, family: 'Poppins' } } },
+                            title: { display: true, text: 'Issue Types', color: '#007bff', font: { size: 16, weight: '600' } }
                         }
                     }
                 });
@@ -669,9 +673,9 @@
                         labels: Object.keys(priorities),
                         datasets: [{
                             data: Object.values(priorities),
-                            backgroundColor: ['#ff4081', '#ffd740', '#00e676'],
+                            backgroundColor: ['#ff4081', 'yellow', '#007bff'],
                             borderWidth: 2,
-                            borderColor: '#1e2a2f',
+                            borderColor: '#ffffff',
                             hoverOffset: 10
                         }]
                     },
@@ -679,8 +683,8 @@
                         responsive: true,
                         animation: { animateScale: true, animateRotate: true },
                         plugins: {
-                            legend: { position: 'top', labels: { color: '#e0f7fa', font: { size: 14, family: 'Poppins' } } },
-                            title: { display: true, text: 'Priorities', color: '#00e676', font: { size: 16, weight: '600' } }
+                            legend: { position: 'top', labels: { color: '#007bff', font: { size: 14, family: 'Poppins' } } },
+                            title: { display: true, text: 'Priorities', color: '#007bff', font: { size: 16, weight: '600' } }
                         }
                     }
                 });
