@@ -131,7 +131,7 @@
             color: var(--text);
         }
 
-        /* Priority Colors */
+        /* Priority and Status Colors */
         .high-priority-row {
             background-color: #ff4d4d !important;
             /* Red for high priority */
@@ -147,9 +147,16 @@
             /* Dull yellow for low priority */
         }
 
+        .resolved-row {
+            background-color: #28a745 !important;
+            /* Green for resolved */
+            color: #ffffff !important;
+        }
+
         .selected-row {
             background-color: #cce5ff !important;
             /* Selection Blue */
+            color: #000000 !important;
         }
 
         .attachment-link {
@@ -327,6 +334,7 @@
                             <th>Message</th>
                             <th>Attachment</th>
                             <th>Submission Date</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody id="ticketTableBody"></tbody>
@@ -398,7 +406,7 @@
             const tbody = $('#ticketTableBody');
             tbody.empty();
             tickets.forEach(ticket => {
-                const priorityClass = {
+                const priorityClass = ticket.status === 'Request Resolved' ? 'resolved-row' : {
                     'high': 'high-priority-row',
                     'medium': 'medium-priority-row',
                     'low': 'low-priority-row'
@@ -419,6 +427,7 @@
                         <td>${ticket.message}</td>
                         <td>${attachmentLink}</td>
                         <td>${new Date(ticket.submission_date).toLocaleString()}</td>
+                        <td>${ticket.status || 'Under Working'}</td>
                     </tr>
                 `);
             });
@@ -461,7 +470,8 @@
                 'Subject': ticket.subject,
                 'Message': ticket.message,
                 'Attachment': ticket.attachment1 || 'None',
-                'Submission Date': new Date(ticket.submission_date).toLocaleString()
+                'Submission Date': new Date(ticket.submission_date).toLocaleString(),
+                'Status': ticket.status || 'Under Working'
             }));
             const ws = XLSX.utils.json_to_sheet(data);
             const wb = XLSX.utils.book_new();

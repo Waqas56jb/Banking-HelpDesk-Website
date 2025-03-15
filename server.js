@@ -536,6 +536,38 @@ app.put('/api/tickets/:ticket_id/resolve', (req, res) => {
     });
 });
 
+// Get all staff
+app.get('/api/staff', (req, res) => {
+    db.query('SELECT name, email, password FROM staff', (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// Get all bankers
+app.get('/api/bankers', (req, res) => {
+    db.query('SELECT username, email, password FROM bankers', (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// Get all admins
+app.get('/api/admins', (req, res) => {
+    db.query('SELECT admin_name, admin_email, admin_password FROM admins', (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// Existing tickets endpoint (assumed already present)
+app.get('/api/tickets', (req, res) => {
+    db.query('SELECT * FROM support_tickets', (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
 // Start Server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
