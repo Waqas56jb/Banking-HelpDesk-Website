@@ -10,25 +10,16 @@
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- For Excel export -->
     <style>
         :root {
             --primary: #007bff;
-            /* Blue */
             --secondary: #ffffff;
-            /* White */
             --accent: #ff4081;
-            /* Bright Pink (retained for contrast) */
             --background: #007bff;
-            /* Blue gradient start */
             --card-bg: #ffffff;
-            /* White container */
             --text: #007bff;
-            /* Blue text */
             --shadow: rgba(0, 123, 255, 0.4);
-            /* Blue shadow */
             --highlight: #ffffff;
-            /* White for hover effects */
         }
 
         body {
@@ -165,7 +156,6 @@
             margin-left: 15px;
         }
 
-        /* Toggle Button Styling */
         .sidebar-toggle-btn {
             background: transparent;
             border: none;
@@ -201,7 +191,6 @@
 
         .sidebar-toggle-btn:hover span {
             background: #0056b3;
-            /* Darker blue */
             box-shadow: 0 0 5px var(--shadow);
         }
 
@@ -280,6 +269,8 @@
             width: 100%;
             border-collapse: separate;
             border-spacing: 0 8px;
+            background-color: transparent;
+            /* Ensure table background doesn’t interfere */
         }
 
         .table th {
@@ -293,17 +284,41 @@
         }
 
         .table td {
+            background-color: transparent;
+            /* Ensure cells are transparent to show row color */
             vertical-align: middle;
             padding: 15px;
-            background: rgba(0, 123, 255, 0.1);
-            /* Light blue tint */
             border-bottom: 1px solid rgba(0, 123, 255, 0.2);
             color: var(--text);
         }
 
-        .table tr:hover td {
-            background: rgba(0, 123, 255, 0.2);
-            transition: background 0.3s ease;
+        /* Priority Colors for Data Rows Only */
+        .high-priority-row {
+            background-color: #ff0000 !important;
+            /* Bright Red */
+            color: #ffffff !important;
+            /* White text */
+        }
+
+        .medium-priority-row {
+            background-color: #ff4d4d !important;
+            /* Normal Red */
+            color: #ffffff !important;
+            /* White text */
+        }
+
+        .low-priority-row {
+            background-color: #ff9999 !important;
+            /* Dull Red */
+            color: #000000 !important;
+            /* Black text */
+        }
+
+        .selected-row {
+            background-color: #cce5ff !important;
+            /* Selection Blue */
+            color: #000000 !important;
+            /* Black text */
         }
 
         .btn-danger {
@@ -321,20 +336,17 @@
         }
 
         .attachment-link {
-            color: var(--primary);
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s ease;
         }
 
         .attachment-link:hover {
-            color: #0056b3;
-            /* Darker blue */
             text-decoration: underline;
         }
 
         h4 {
-            color: var(--primary);
+            color: #000000;
             text-align: center;
             margin-bottom: 30px;
             font-weight: 700;
@@ -344,7 +356,6 @@
             animation: glow 2s infinite alternate;
         }
 
-        /* Search and Filter Styles */
         .search-filter-container {
             display: flex;
             gap: 15px;
@@ -383,8 +394,18 @@
 
         .btn-custom:hover {
             background: #0056b3;
-            /* Darker blue */
             transform: scale(1.05);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+        }
+
+        .modal-header {
+            background: var(--primary);
+            color: var(--secondary);
         }
 
         @keyframes fadeIn {
@@ -486,23 +507,18 @@
 </head>
 
 <body>
-    <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
-            <span></span>
-            <span></span>
-            <span></span>
+            <span></span><span></span><span></span>
         </button>
         <h4>Admin Panel</h4>
         <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
         <a href="../Staff/signup.html"><i class="fas fa-tachometer-alt"></i> Staff</a>
-        <a href="#"><i class="fas fa-tachometer-alt"></i> banking</a>
+        <a href="#"><i class="fas fa-tachometer-alt"></i> Banking</a>
         <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
-    <!-- Main Content -->
     <div class="content" id="content">
-        <!-- Navbar -->
         <div class="navbar fade-in">
             <h3>Support Tickets Dashboard</h3>
             <div class="profile">
@@ -512,40 +528,38 @@
             </div>
         </div>
 
-        <!-- Analytics Section -->
         <div class="dashboard-section fade-in">
             <h4>Ticket Analytics</h4>
             <div class="chart-container">
                 <div class="chart-card card">
-                    <h5>Issue Type Distribution</h5>
-                    <canvas id="issueTypeChart"></canvas>
+                    <h5>Issue Type Distribution</h5><canvas id="issueTypeChart"></canvas>
                 </div>
                 <div class="chart-card card">
-                    <h5>Priority Distribution</h5>
-                    <canvas id="priorityChart"></canvas>
+                    <h5>Priority Distribution</h5><canvas id="priorityChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Tickets Table -->
         <div class="ticket-table fade-in">
             <h4>All Support Tickets</h4>
             <div class="search-filter-container">
                 <input type="text" id="searchInput" class="search-input" placeholder="Search by ID or Email">
                 <select id="priorityFilter" class="filter-select">
                     <option value="">All Priorities</option>
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
                 </select>
                 <select id="issueTypeFilter" class="filter-select">
                     <option value="">All Issue Types</option>
                 </select>
-                <button class="btn btn-danger" onclick="deleteAllTickets()">Delete All</button>
+                <button class="btn btn-custom" id="selectAllBtn">Select All</button>
+                <button class="btn btn-custom" id="sendSelectedBtn">Send to Selected</button>
+                <button class="btn btn-danger" id="deleteAllBtn" onclick="deleteAllTickets()">Delete All</button>
                 <button class="btn btn-custom" onclick="downloadExcel()">Download Excel</button>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -568,14 +582,42 @@
         </div>
     </div>
 
+    <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="announcementModalLabel">Send Announcement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="announcementForm">
+                        <div class="mb-3">
+                            <label for="announcementSubject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="announcementSubject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="announcementMessage" class="form-label">Message</label>
+                            <textarea class="form-control" id="announcementMessage" rows="4" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="sendAnnouncementBtn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let issueTypeChart, priorityChart;
         let isSidebarOpen = true;
-        let allTickets = []; // Store all tickets for filtering
+        let allTickets = [];
+        let selectedEmails = [];
 
-        // Toggle Sidebar
         function toggleSidebar() {
             const sidebar = $('#sidebar');
             const content = $('#content');
@@ -592,177 +634,102 @@
             isSidebarOpen = !isSidebarOpen;
         }
 
-        // Load Tickets and Charts
         function loadDashboard() {
-            $.get('http://localhost:3000/api/tickets', function (tickets) {
-                allTickets = tickets; // Store tickets for filtering
-                const tbody = $('#ticketTableBody');
-                tbody.empty();
-                tickets.forEach(ticket => {
-                    const attachmentLink = ticket.attachment1 ?
-                        `<a href="http://localhost:3000/uploads/${ticket.attachment1}" class="attachment-link" target="_blank">${ticket.attachment1}</a>` :
-                        'None';
-                    tbody.append(`
-                        <tr data-ticket-id="${ticket.ticket_id}">
-                            <td>${ticket.ticket_id}</td>
-                            <td>${ticket.issue_type}</td>
-                            <td>${ticket.name}</td>
-                            <td>${ticket.email}</td>
-                            <td>${ticket.priority}</td>
-                            <td>${ticket.branchcode}</td>
-                            <td>${ticket.user_code}</td>
-                            <td>${ticket.subject}</td>
-                            <td>${ticket.message}</td>
-                            <td>${attachmentLink}</td>
-                            <td>${new Date(ticket.submission_date).toLocaleString()}</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm" onclick="deleteTicket(${ticket.ticket_id})">Delete</button>
-                            </td>
-                        </tr>
-                    `);
-                });
-
-                // Aggregate data for charts
-                const issueTypes = {};
-                const priorities = {};
-                tickets.forEach(ticket => {
-                    issueTypes[ticket.issue_type] = (issueTypes[ticket.issue_type] || 0) + 1;
-                    priorities[ticket.priority] = (priorities[ticket.priority] || 0) + 1;
-                });
-
-                // Populate issue type filter
-                const issueTypeFilter = $('#issueTypeFilter');
-                issueTypeFilter.empty().append('<option value="">All Issue Types</option>');
-                Object.keys(issueTypes).forEach(type => {
-                    issueTypeFilter.append(`<option value="${type}">${type}</option>`);
-                });
-
-                // Destroy existing charts if they exist
-                if (issueTypeChart) issueTypeChart.destroy();
-                if (priorityChart) priorityChart.destroy();
-
-                // Issue Type Chart
-                const issueCtx = document.getElementById('issueTypeChart').getContext('2d');
-                issueTypeChart = new Chart(issueCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(issueTypes),
-                        datasets: [{
-                            data: Object.values(issueTypes),
-                            backgroundColor: ['#007bff', '#ff4081', '#000', '#00b0ff', '#e91e63', '#7c4dff'],
-                            borderWidth: 2,
-                            borderColor: '#ffffff',
-                            hoverOffset: 10
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        animation: { animateScale: true, animateRotate: true },
-                        plugins: {
-                            legend: { position: 'top', labels: { color: '#007bff', font: { size: 14, family: 'Poppins' } } },
-                            title: { display: true, text: 'Issue Types', color: '#007bff', font: { size: 16, weight: '600' } }
-                        }
-                    }
-                });
-
-                // Priority Chart
-                const priorityCtx = document.getElementById('priorityChart').getContext('2d');
-                priorityChart = new Chart(priorityCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(priorities),
-                        datasets: [{
-                            data: Object.values(priorities),
-                            backgroundColor: ['#ff4081', 'yellow', '#007bff'],
-                            borderWidth: 2,
-                            borderColor: '#ffffff',
-                            hoverOffset: 10
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        animation: { animateScale: true, animateRotate: true },
-                        plugins: {
-                            legend: { position: 'top', labels: { color: '#007bff', font: { size: 14, family: 'Poppins' } } },
-                            title: { display: true, text: 'Priorities', color: '#007bff', font: { size: 16, weight: '600' } }
-                        }
-                    }
-                });
-
-                // Load admin profile from localStorage
-                const adminName = localStorage.getItem('adminName') || 'Admin';
-                const adminPhoto = localStorage.getItem('adminPhoto') || 'http://localhost:3000/uploads/default.png';
-                $('#profileName').text(adminName);
-                $('#profilePhoto').attr('src', adminPhoto);
-
-            }).fail(function (xhr) {
-                console.error("Error fetching tickets:", xhr.responseJSON);
-                alert("Failed to load tickets: " + (xhr.responseJSON?.error || "Unknown error"));
+            $.ajax({
+                url: 'http://localhost:3000/api/tickets',
+                method: 'GET',
+                success: function (tickets) {
+                    allTickets = tickets;
+                    renderTickets(tickets);
+                    updateCharts(tickets);
+                    populateIssueTypeFilter(tickets);
+                },
+                error: function (xhr) {
+                    console.error('Error loading tickets:', xhr.responseJSON);
+                    alert("Failed to load tickets: " + (xhr.responseJSON?.error || "Unknown error"));
+                }
             });
         }
 
-        // Delete Ticket
-        function deleteTicket(id) {
-            if (confirm('Are you sure you want to delete this ticket?')) {
-                $.ajax({
-                    url: `http://localhost:3000/api/tickets/${id}`,
-                    type: 'DELETE',
-                    success: function (response) {
-                        if (response.message) {
-                            alert(response.message);
-                            $(`tr[data-ticket-id="${id}"]`).remove();
-                            loadDashboard();
-                        } else {
-                            alert('Ticket deleted, but no message returned.');
-                        }
-                    },
-                    error: function (xhr) {
-                        console.error("Error deleting ticket:", xhr.responseJSON || xhr.statusText);
-                        alert('Error deleting ticket: ' + (xhr.responseJSON?.error || xhr.statusText || 'Unknown error'));
+        function updateCharts(tickets) {
+            const issueTypes = {};
+            const priorities = {};
+            tickets.forEach(ticket => {
+                issueTypes[ticket.issue_type] = (issueTypes[ticket.issue_type] || 0) + 1;
+                priorities[ticket.priority] = (priorities[ticket.priority] || 0) + 1;
+            });
+
+            if (issueTypeChart) issueTypeChart.destroy();
+            if (priorityChart) priorityChart.destroy();
+
+            const issueCtx = document.getElementById('issueTypeChart').getContext('2d');
+            issueTypeChart = new Chart(issueCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(issueTypes),
+                    datasets: [{
+                        data: Object.values(issueTypes),
+                        backgroundColor: ['#007bff', '#ff4081', '#000', '#00b0ff', '#e91e63', '#7c4dff'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: '#007bff', font: { size: 14, family: 'Poppins' } } },
+                        title: { display: true, text: 'Issue Types', color: '#007bff', font: { size: 16, weight: '600' } }
                     }
-                });
-            }
+                }
+            });
+
+            const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+            priorityChart = new Chart(priorityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(priorities),
+                    datasets: [{
+                        data: Object.values(priorities),
+                        backgroundColor: ['#007bff', '#ff4081', '#00b0ff'], // No priority colors here, using original chart colors
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: '#007bff', font: { size: 14, family: 'Poppins' } } },
+                        title: { display: true, text: 'Priorities', color: '#007bff', font: { size: 16, weight: '600' } }
+                    }
+                }
+            });
         }
 
-        // Delete All Tickets
-        function deleteAllTickets() {
-            if (confirm('Are you sure you want to delete all tickets? This action cannot be undone.')) {
-                $.ajax({
-                    url: 'http://localhost:3000/api/tickets/all',
-                    type: 'DELETE',
-                    success: function (response) {
-                        alert(response.message);
-                        loadDashboard();
-                    },
-                    error: function (xhr) {
-                        console.error("Error deleting all tickets:", xhr.responseJSON || xhr.statusText);
-                        alert('Error deleting all tickets: ' + (xhr.responseJSON?.error || xhr.statusText || 'Unknown error'));
-                    }
-                });
-            }
+        function populateIssueTypeFilter(tickets) {
+            const issueTypeFilter = $('#issueTypeFilter');
+            const issueTypes = [...new Set(tickets.map(ticket => ticket.issue_type))].sort();
+            issueTypeFilter.empty().append('<option value="">All Issue Types</option>');
+            issueTypes.forEach(type => {
+                issueTypeFilter.append(`<option value="${type}">${type}</option>`);
+            });
         }
 
-        // Filter and Search Tickets
-        function filterTickets() {
-            const searchTerm = $('#searchInput').val().toLowerCase();
-            const priorityFilter = $('#priorityFilter').val();
-            const issueTypeFilter = $('#issueTypeFilter').val();
+        function renderTickets(tickets) {
             const tbody = $('#ticketTableBody');
             tbody.empty();
-
-            const filteredTickets = allTickets.filter(ticket => {
-                const matchesSearch = ticket.ticket_id.toString().includes(searchTerm) || ticket.email.toLowerCase().includes(searchTerm);
-                const matchesPriority = !priorityFilter || ticket.priority === priorityFilter;
-                const matchesIssueType = !issueTypeFilter || ticket.issue_type === issueTypeFilter;
-                return matchesSearch && matchesPriority && matchesIssueType;
-            });
-
-            filteredTickets.forEach(ticket => {
+            tickets.forEach(ticket => {
+                const priorityClass = {
+                    'high': 'high-priority-row',
+                    'medium': 'medium-priority-row',
+                    'low': 'low-priority-row'
+                }[ticket.priority.toLowerCase()] || '';
+                const isSelected = selectedEmails.includes(ticket.email) ? 'selected-row' : '';
                 const attachmentLink = ticket.attachment1 ?
-                    `<a href="http://localhost:3000/uploads/${ticket.attachment1}" class="attachment-link" target="_blank">${ticket.attachment1}</a>` :
-                    'None';
+                    `<a href="http://localhost:3000/uploads/${ticket.attachment1}" class="attachment-link" target="_blank">${ticket.attachment1}</a>` : 'None';
                 tbody.append(`
-                    <tr data-ticket-id="${ticket.ticket_id}">
+                    <tr data-ticket-id="${ticket.ticket_id}" data-email="${ticket.email}" class="${priorityClass} ${isSelected}">
                         <td>${ticket.ticket_id}</td>
                         <td>${ticket.issue_type}</td>
                         <td>${ticket.name}</td>
@@ -780,9 +747,69 @@
                     </tr>
                 `);
             });
+
+            $('tr[data-ticket-id]').off('click').on('click', function (e) {
+                if ($(e.target).is('button') || $(e.target).is('a')) return;
+                $(this).toggleClass('selected-row');
+                const email = $(this).data('email');
+                if ($(this).hasClass('selected-row')) {
+                    if (!selectedEmails.includes(email)) selectedEmails.push(email);
+                } else {
+                    selectedEmails = selectedEmails.filter(e => e !== email);
+                }
+            });
         }
 
-        // Download Excel
+        function deleteTicket(id) {
+            if (confirm('Are you sure you want to delete this ticket?')) {
+                $.ajax({
+                    url: `http://localhost:3000/api/tickets/${id}`,
+                    type: 'DELETE',
+                    success: function (response) {
+                        alert(response.message);
+                        loadDashboard();
+                        selectedEmails = selectedEmails.filter(email => !allTickets.some(t => t.ticket_id === id && t.email === email));
+                    },
+                    error: function (xhr) {
+                        alert('Error deleting ticket: ' + (xhr.responseJSON?.error || 'Unknown error'));
+                    }
+                });
+            }
+        }
+
+        function deleteAllTickets() {
+            if (confirm('Are you sure you want to delete all tickets?')) {
+                $.ajax({
+                    url: 'http://localhost:3000/api/tickets/all',
+                    type: 'DELETE',
+                    success: function (response) {
+                        alert(response.message);
+                        allTickets = [];
+                        selectedEmails = [];
+                        renderTickets([]);
+                        updateCharts([]);
+                    },
+                    error: function (xhr) {
+                        alert('Error deleting all tickets: ' + (xhr.responseJSON?.error || 'Unknown error'));
+                    }
+                });
+            }
+        }
+
+        function filterTickets() {
+            const searchTerm = $('#searchInput').val().toLowerCase();
+            const priorityFilter = $('#priorityFilter').val().toLowerCase();
+            const issueTypeFilter = $('#issueTypeFilter').val();
+
+            const filteredTickets = allTickets.filter(ticket => {
+                const matchesSearch = ticket.ticket_id.toString().includes(searchTerm) || ticket.email.toLowerCase().includes(searchTerm);
+                const matchesPriority = !priorityFilter || ticket.priority.toLowerCase() === priorityFilter;
+                const matchesIssueType = !issueTypeFilter || ticket.issue_type === issueTypeFilter;
+                return matchesSearch && matchesPriority && matchesIssueType;
+            });
+            renderTickets(filteredTickets);
+        }
+
         function downloadExcel() {
             const data = allTickets.map(ticket => ({
                 'ID': ticket.ticket_id,
@@ -797,14 +824,47 @@
                 'Attachment': ticket.attachment1 || 'None',
                 'Submission Date': new Date(ticket.submission_date).toLocaleString()
             }));
-
             const ws = XLSX.utils.json_to_sheet(data);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Support Tickets');
             XLSX.writeFile(wb, 'Support_Tickets.xlsx');
         }
 
-        // Logout
+        function showAnnouncementModal() {
+            if (selectedEmails.length === 0) {
+                alert('Please select at least one ticket.');
+                return;
+            }
+            $('#announcementModal').modal('show');
+        }
+
+        function sendAnnouncement() {
+            const subject = $('#announcementSubject').val().trim();
+            const message = $('#announcementMessage').val().trim();
+            if (!subject || !message) {
+                alert('Please fill in both subject and message.');
+                return;
+            }
+
+            $.ajax({
+                url: 'http://localhost:3000/api/send-announcement',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ emails: selectedEmails, subject, message }),
+                success: function (response) {
+                    alert(response.message);
+                    $('#announcementModal').modal('hide');
+                    $('#announcementForm')[0].reset();
+                    selectedEmails = [];
+                    $('tr').removeClass('selected-row');
+                    loadDashboard();
+                },
+                error: function (xhr) {
+                    alert('Error sending announcement: ' + (xhr.responseJSON?.message || 'Unknown error'));
+                }
+            });
+        }
+
         function logout() {
             alert("Logging out...");
             localStorage.removeItem('adminName');
@@ -812,19 +872,30 @@
             window.location.href = 'Admin_Login.html';
         }
 
-        // Toggle Sidebar Event and Initial Load
         $(document).ready(function () {
             $('#sidebarToggleBtn').click(toggleSidebar);
             loadDashboard();
 
-            // Notification click (placeholder)
             $('.notification').click(function () {
                 alert('Notifications feature coming soon!');
             });
 
-            // Search and Filter Events
-            $('#searchInput').on('input', filterTickets);
-            $('#priorityFilter, #issueTypeFilter').on('change', filterTickets);
+            $('#searchInput, #priorityFilter, #issueTypeFilter').on('input change', filterTickets);
+
+            $('#selectAllBtn').click(function () {
+                const visibleRows = $('tr[data-ticket-id]:visible');
+                visibleRows.addClass('selected-row');
+                selectedEmails = [...new Set(visibleRows.map((_, row) => $(row).data('email')).get())];
+            });
+
+            $('#sendSelectedBtn').click(showAnnouncementModal);
+
+            $('#sendAnnouncementBtn').click(sendAnnouncement);
+
+            const adminName = localStorage.getItem('adminName') || 'Admin';
+            const adminPhoto = localStorage.getItem('adminPhoto') || 'http://localhost:3000/uploads/default.png';
+            $('#profileName').text(adminName);
+            $('#profilePhoto').attr('src', adminPhoto);
         });
     </script>
 </body>

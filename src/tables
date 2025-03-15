@@ -40,3 +40,12 @@ CREATE TABLE helpdesk.staff (
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE helpdesk.bankers (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(50) UNIQUE,
+  email VARCHAR(100) UNIQUE,
+  password VARCHAR(255)
+);
+ALTER TABLE helpdesk.support_tickets
+ADD COLUMN status ENUM('Under Working', 'Request Resolved') DEFAULT 'Under Working';

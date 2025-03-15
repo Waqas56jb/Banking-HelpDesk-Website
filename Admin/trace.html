@@ -114,6 +114,7 @@
             <p><strong>Attachment:</strong> <span id="attachment1"></span></p>
             <p><strong>Ticket ID:</strong> <span id="ticket_id_display"></span></p>
             <p><strong>Submission Date:</strong> <span id="submission_date"></span></p>
+            <p><strong>Status:</strong> <span id="status"></span></p>
         </div>
     </div>
     <script>
@@ -147,8 +148,9 @@
                         $("#subject").text(response.subject);
                         $("#message").text(response.message);
                         $("#attachment1").text(response.attachment1 || "None");
-                        $("#ticket_id_display").text(response.ticket_id);
-                        $("#submission_date").text(new Date(response.submission_date).toLocaleString());
+                        $("#ticket_id_display").text(response.id);
+                        $("#submission_date").text(new Date(response.datetime).toLocaleString());
+                        $("#status").text(response.status || 'Under Working');
                     },
                     error: function (err) {
                         $("#ticketDashboard").hide();

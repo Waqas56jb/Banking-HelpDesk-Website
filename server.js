@@ -14,7 +14,7 @@ const port = 3000;
 const db = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "1234", // Replace with your MySQL password
+    password: "1234", // Your MySQL password
     database: "helpdesk",
 });
 
@@ -86,7 +86,7 @@ oAuth2Client.on("tokens", (tokens) => {
 
 const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
 
-// Email Sending Function
+// Email Sending Function (Your existing function for ticket submission)
 async function sendTicketEmail(to, ticketData) {
     const sender = "your_email@gmail.com"; // Replace with your Gmail address
     const subject = "Your Helpdesk Support Ticket Details";
@@ -159,8 +159,8 @@ app.post("/submit-ticket", upload.single("attachment1"), async (req, res) => {
 
     const sql = `
         INSERT INTO support_tickets (
-            issue_type, name, email, priority, branchcode, address, user_code, subject, message, attachment1
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            issue_type, name, email, priority, branchcode, address, user_code, subject, message, attachment1, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Under Working')
     `;
     const values = [issue_type, name, email, priority, branchcodeInt, address, user_code, subject, message, attachment1];
 
@@ -211,15 +211,12 @@ app.post("/track-ticket", (req, res) => {
 app.get("/api/tickets", (req, res) => {
     const query = `
         SELECT ticket_id, issue_type, name, email, priority, branchcode, address, 
-               user_code, subject, message, attachment1, submission_date 
+               user_code, subject, message, attachment1, submission_date, status 
         FROM support_tickets 
         ORDER BY submission_date DESC
     `;
     db.query(query, (err, results) => {
-        if (err) {
-            console.error("Error fetching tickets:", err.message);
-            return res.status(500).json({ error: err.message });
-        }
+        if (err) return res.status(500).json({ error: err.message });
         res.json(results);
     });
 });
@@ -229,13 +226,8 @@ app.delete('/api/tickets/:id', (req, res) => {
     const ticketId = req.params.id;
     const sql = 'DELETE FROM support_tickets WHERE ticket_id = ?';
     db.query(sql, [ticketId], (err, result) => {
-        if (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ error: 'Database error' });
-        }
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Ticket not found' });
-        }
+        if (err) return res.status(500).json({ error: 'Database error' });
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Ticket not found' });
         res.json({ message: 'Ticket deleted successfully' });
     });
 });
@@ -275,7 +267,7 @@ app.post("/admin/login", (req, res) => {
     });
 });
 
-// Forgot Password
+// Admin Forgot Password
 app.post("/admin/forgot-password", (req, res) => {
     const { admin_email, newPassword } = req.body;
 
@@ -297,7 +289,8 @@ app.post("/admin/forgot-password", (req, res) => {
         res.json({ message: "Password Updated Successfully" });
     });
 });
-//-------------------------- Staff side ------------------
+
+// Staff Side Endpoints
 app.post('/signup', (req, res) => {
     const { name, email, password } = req.body;
     db.query('INSERT INTO staff (name, email, password) VALUES (?, ?, ?)', [name, email, password], (err) => {
@@ -329,9 +322,8 @@ app.post('/reset-password', (req, res) => {
         res.json({ success: true, message: 'Password updated successfully' });
     });
 });
- 
-//-------------------------- forget admin password ------------
-// ✅ Verify Admin Email (Check if it exists)
+
+// Forget Admin Password
 app.post('/admin/forgetpassword/api', (req, res) => {
     const { admin_email } = req.body;
 
@@ -343,7 +335,6 @@ app.post('/admin/forgetpassword/api', (req, res) => {
     });
 });
 
-// ✅ Change Password
 app.post('/admin/reset', (req, res) => {
     const { admin_email, newPassword, confirmPassword } = req.body;
 
@@ -359,6 +350,189 @@ app.post('/admin/reset', (req, res) => {
     [newPassword, admin_email], (err) => {
         if (err) return res.status(500).json({ message: 'Error updating password' });
         res.json({ message: 'Password changed successfully' });
+    });
+});
+
+// Independent Email Sending Function for Announcements
+async function sendEmail(to, subject, message) {
+    const sender = "your_email@gmail.com"; // Replace with your Gmail address
+    const emailContent = [
+        `From: ${sender}`,
+        `To: ${to}`,
+        `Subject: ${subject}`,
+        "MIME-Version: 1.0",
+        "Content-Type: text/html; charset=utf-8",
+        "",
+        message,
+    ].join("\n");
+
+    const encodedMessage = Buffer.from(emailContent)
+        .toString("base64")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+
+    try {
+        await initializeAuth();
+        const response = await gmail.users.messages.send({
+            userId: "me",
+            requestBody: { raw: encodedMessage },
+        });
+        console.log(`Announcement email sent to ${to}: ${response.data.id}`);
+        return response;
+    } catch (error) {
+        console.error("Error sending announcement email:", error.message);
+        throw error;
+    }
+}
+
+// Send Announcement Endpoint
+app.post("/api/send-announcement", async (req, res) => {
+    const { emails, subject, message } = req.body;
+    if (!emails || !subject || !message) {
+        return res.status(400).json({ message: "Emails, subject, and message are required." });
+    }
+
+    try {
+        const emailArray = [...new Set(Array.isArray(emails) ? emails : [emails])];
+        const promises = emailArray.map(email => sendEmail(email, subject, message));
+        await Promise.all(promises);
+        res.json({ message: "Announcements sent successfully!" });
+    } catch (error) {
+        console.error("Error in send-announcement endpoint:", error.message);
+        res.status(500).json({ message: "Error sending announcements: " + error.message });
+    }
+});
+
+// Delete All Tickets
+app.delete("/api/tickets/all", (req, res) => {
+    const sql = "DELETE FROM support_tickets";
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.error("Error deleting all tickets:", err.message);
+            return res.status(500).json({ error: "Database error: " + err.message });
+        }
+        console.log(`Deleted ${result.affectedRows} tickets`);
+        res.json({ message: "All tickets deleted successfully", deletedCount: result.affectedRows });
+    });
+});
+
+// Banker Endpoints
+
+// Serve Banker Signup Page
+app.get('/banker/signup', (req, res) => {
+    res.sendFile(__dirname + '/public/banker_signup.html');
+});
+
+// Handle Banker Signup
+app.post('/banker/signup', (req, res) => {
+    const { username, email, password } = req.body;
+    console.log('Signup Request Body:', req.body); // Debugging log
+    if (!username || !email || !password) {
+        return res.status(400).json({ success: false, message: 'All fields are required' });
+    }
+    db.query('SELECT * FROM bankers WHERE username = ? OR email = ?', [username, email], (err, rows) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        if (rows.length > 0) {
+            return res.status(400).json({ success: false, message: 'Username or email already exists' });
+        }
+        db.query('INSERT INTO bankers (username, email, password) VALUES (?, ?, ?)', [username, email, password], (err) => {
+            if (err) {
+                console.error('Insert error:', err);
+                return res.status(500).json({ success: false, message: 'Error creating banker account' });
+            }
+            res.json({ success: true, message: 'Banker account created successfully' });
+        });
+    });
+});
+
+// Serve Banker Login Page
+app.get('/banker/login', (req, res) => {
+    res.sendFile(__dirname + '/public/banker_login.html');
+});
+
+// Handle Banker Login (Using email and password)
+app.post('/banker/login', (req, res) => {
+    const { email, password } = req.body;
+    console.log('Login Request Body:', req.body); // Debugging log
+    if (!email || !password) {
+        return res.status(400).json({ success: false, message: 'Email and password are required' });
+    }
+    db.query('SELECT * FROM bankers WHERE email = ? AND password = ?', [email, password], (err, rows) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        if (rows.length === 0) {
+            return res.status(401).json({ success: false, message: 'Invalid email or password' });
+        }
+        res.json({ success: true, message: 'Login successful' });
+    });
+});
+
+// Serve Banker Forget Password Page
+app.get('/banker/forgetpassword', (req, res) => {
+    res.sendFile(__dirname + '/public/banker_forgetpassword.html');
+});
+
+// Verify Banker Email for Forget Password
+app.post('/banker/checkemail', (req, res) => {
+    const { email } = req.body;
+    console.log('Check Email Request Body:', req.body); // Debugging log
+    if (!email) {
+        return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+    db.query('SELECT * FROM bankers WHERE email = ?', [email], (err, rows) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Email not found' });
+        }
+        res.json({ success: true, message: 'Email exists' });
+    });
+});
+
+// Handle Banker Password Reset
+app.post('/banker/forgetpassword', (req, res) => {
+    const { email, newpassword, confirmpassword } = req.body;
+    console.log('Forget Password Request Body:', req.body); // Debugging log
+    if (!email || !newpassword || !confirmpassword) {
+        return res.status(400).json({ success: false, message: 'All fields are required' });
+    }
+    if (newpassword !== confirmpassword) {
+        return res.status(400).json({ success: false, message: 'Passwords do not match' });
+    }
+    db.query('SELECT * FROM bankers WHERE email = ?', [email], (err, rows) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Email not found' });
+        }
+        db.query('UPDATE bankers SET password = ? WHERE email = ?', [newpassword, email], (err) => {
+            if (err) {
+                console.error('Update error:', err);
+                return res.status(500).json({ success: false, message: 'Error updating password' });
+            }
+            res.json({ success: true, message: 'Password updated successfully' });
+        });
+    });
+});
+
+//------------------------- request resolved ---------------
+app.put('/api/tickets/:ticket_id/resolve', (req, res) => {
+    const ticketId = req.params.ticket_id;
+    const sql = 'UPDATE support_tickets SET status = "Request Resolved" WHERE ticket_id = ?';
+    db.query(sql, [ticketId], (err, result) => {
+        if (err) return res.status(500).json({ error: 'Database error: ' + err.message });
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Ticket not found' });
+        res.json({ message: 'Ticket resolved successfully' });
     });
 });
 
