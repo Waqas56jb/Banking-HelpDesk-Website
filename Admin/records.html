@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Records Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #007bff;
+            --secondary: #ffffff;
+            --accent: #ff4081;
+            --background: #007bff;
+            --card-bg: #ffffff;
+            --text: #007bff;
+            --shadow: rgba(0, 123, 255, 0.4);
+            --highlight: #ffffff;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--background), var(--secondary));
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            position: fixed;
+            background: var(--card-bg);
+            border-right: 3px solid var(--primary);
+            padding: 25px 0;
+            box-shadow: 0 0 25px var(--shadow);
+            z-index: 1000;
+            transition: width 0.4s ease, transform 0.4s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            transform: translateX(-100%);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .sidebar h4 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 35px;
+            font-weight: 700;
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: glow 2s infinite alternate;
+        }
+
+        .sidebar a {
+            color: var(--primary);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin: 10px 15px;
+            border-radius: 10px;
+        }
+
+        .sidebar a i {
+            margin-right: 12px;
+            font-size: 1.3rem;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: var(--primary);
+            color: var(--secondary);
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 40px;
+            transition: margin-left 0.4s ease;
+        }
+
+        .content.expanded {
+            margin-left: 0;
+        }
+
+        .navbar {
+            background: var(--card-bg);
+            border-bottom: 3px solid var(--primary);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 6px 20px var(--shadow);
+            border-radius: 0 0 15px 15px;
+            position: relative;
+        }
+
+        .navbar h3 {
+            color: var(--primary);
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+
+        .navbar .profile {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .navbar .profile .notification {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-right: 15px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar .profile .notification:hover {
+            transform: scale(1.2);
+        }
+
+        .navbar .profile img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            margin-left: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .navbar .profile img:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 15px var(--shadow);
+        }
+
+        .navbar .profile span {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-left: 15px;
+        }
+
+        .sidebar-toggle-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            width: 30px;
+            height: 20px;
+            position: relative;
+            margin: 0 auto 15px auto;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle-btn span {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle-btn span:nth-child(1) {
+            top: 0;
+        }
+
+        .sidebar-toggle-btn span:nth-child(2) {
+            top: 8px;
+        }
+
+        .sidebar-toggle-btn span:nth-child(3) {
+            top: 16px;
+        }
+
+        .sidebar-toggle-btn:hover span {
+            background: #0056b3;
+            box-shadow: 0 0 5px var(--shadow);
+        }
+
+        .sidebar-toggle-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .sidebar-toggle-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .sidebar-toggle-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        .dashboard-section {
+            margin-top: 40px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px var(--shadow);
+        }
+
+        .card h5 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.3rem;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 20px;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .stats-card {
+            flex: 1;
+            text-align: center;
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px var(--shadow);
+        }
+
+        .stats-card h3 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .stats-card p {
+            color: var(--text);
+            font-size: 1rem;
+            margin: 5px 0 0;
+        }
+
+        .records-container {
+            display: flex;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .records-panel {
+            flex: 1;
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .records-panel h4 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) #e9ecef;
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #e9ecef;
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .table {
+            color: var(--text);
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            background-color: transparent;
+        }
+
+        .table th {
+            color: var(--secondary);
+            font-weight: 600;
+            background: var(--primary);
+            padding: 15px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .table td {
+            background-color: transparent;
+            vertical-align: middle;
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 123, 255, 0.2);
+            color: var(--text);
+        }
+
+        h4 {
+            color: #000000;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px var(--primary);
+            }
+
+            to {
+                text-shadow: 0 0 15px var(--primary), 0 0 25px var(--shadow);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .content {
+                margin-left: 200px;
+            }
+
+            .content.expanded {
+                margin-left: 0;
+            }
+
+            .stats-container {
+                flex-direction: column;
+            }
+
+            .records-container {
+                flex-direction: column;
+            }
+
+            .navbar .profile {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            .navbar .profile .notification {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .navbar .profile img {
+                margin-left: 0;
+                margin-bottom: 10px;
+            }
+
+            .navbar .profile span {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar" id="sidebar">
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
+            <span></span><span></span><span></span>
+        </button>
+        <h4>Admin Panel</h4>
+        <a href="admin_dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="../Staff/signup.html"><i class="fas fa-tachometer-alt"></i> Staff</a>
+        <a href="../Banker/signup.html"><i class="fas fa-tachometer-alt"></i> Banking</a>
+        <a href="#" class="active"><i class="fas fa-database"></i> Records</a>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="content" id="content">
+        <div class="navbar fade-in">
+            <h3>Records Dashboard</h3>
+            <div class="profile">
+                <i class="fas fa-bell notification" title="Notifications"></i>
+                <img id="profilePhoto" src="http://localhost:3000/uploads/default.png" alt="Profile">
+                <span id="profileName">Admin</span>
+            </div>
+        </div>
+
+        <div class="dashboard-section fade-in">
+            <h4>User Records</h4>
+            <div class="stats-container">
+                <div class="stats-card">
+                    <h3 id="totalStaff">0</h3>
+                    <p>Total Staff</p>
+                </div>
+                <div class="stats-card">
+                    <h3 id="totalBankers">0</h3>
+                    <p>Total Bankers</p>
+                </div>
+                <div class="stats-card">
+                    <h3 id="totalAdmins">0</h3>
+                    <p>Total Admins</p>
+                </div>
+            </div>
+
+            <div class="records-container">
+                <div class="records-panel">
+                    <h4>Staff Records</h4>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Password</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="records-panel">
+                    <h4>Banker Records</h4>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Password</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bankerTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="records-panel">
+                    <h4>Admin Records</h4>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Password</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isSidebarOpen = true;
+
+        function toggleSidebar() {
+            const sidebar = $('#sidebar');
+            const content = $('#content');
+            const toggleBtn = $('#sidebarToggleBtn');
+            if (isSidebarOpen) {
+                sidebar.addClass('collapsed');
+                content.addClass('expanded');
+                toggleBtn.addClass('active');
+            } else {
+                sidebar.removeClass('collapsed');
+                content.removeClass('expanded');
+                toggleBtn.removeClass('active');
+            }
+            isSidebarOpen = !isSidebarOpen;
+        }
+
+        function loadRecords() {
+            $.ajax({
+                url: 'http://localhost:3000/api/records',
+                method: 'GET',
+                success: function (data) {
+                    renderRecords(data.staff, '#staffTableBody', ['name', 'email', 'password']);
+                    renderRecords(data.bankers, '#bankerTableBody', ['username', 'email', 'password']);
+                    renderRecords(data.admins, '#adminTableBody', ['admin_name', 'admin_email', 'admin_password']);
+                    $('#totalStaff').text(data.staff.length);
+                    $('#totalBankers').text(data.bankers.length);
+                    $('#totalAdmins').text(data.admins.length);
+                },
+                error: function (xhr) {
+                    console.error('Error loading records:', xhr.responseJSON);
+                    alert("Failed to load records: " + (xhr.responseJSON?.error || "Unknown error"));
+                }
+            });
+        }
+
+        function renderRecords(records, tableBodyId, fields) {
+            const tbody = $(tableBodyId);
+            tbody.empty();
+            const limitedRecords = records.slice(0, 10); // Limit to 10 records
+            limitedRecords.forEach(record => {
+                tbody.append(`
+                    <tr>
+                        <td>${record[fields[0]]}</td>
+                        <td>${record[fields[1]]}</td>
+                        <td>${record[fields[2]]}</td>
+                    </tr>
+                `);
+            });
+        }
+
+        function logout() {
+            alert("Logging out...");
+            localStorage.removeItem('adminName');
+            localStorage.removeItem('adminPhoto');
+            window.location.href = 'Admin_Login.html';
+        }
+
+        $(document).ready(function () {
+            $('#sidebarToggleBtn').click(toggleSidebar);
+            loadRecords();
+
+            $('.notification').click(function () {
+                alert('Notifications feature coming soon!');
+            });
+
+            const adminName = localStorage.getItem('adminName') || 'Admin';
+            const adminPhoto = localStorage.getItem('adminPhoto') || 'http://localhost:3000/uploads/default.png';
+            $('#profileName').text(adminName);
+            $('#profilePhoto').attr('src', adminPhoto);
+        });
+    </script>
+</body>
+
+</html>
