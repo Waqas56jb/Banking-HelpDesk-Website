@@ -17,6 +17,20 @@
             align-items: center;
             text-align: center;
             padding: 20px;
+            position: relative;
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            max-width: 180px;
+ 
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: auto;
         }
 
         .header {
@@ -87,18 +101,27 @@
             .container {
                 flex-direction: column;
             }
+
+            .logo-container {
+                max-width: 80px;
+                top: 10px;
+                right: 10px;
+            }
         }
     </style>
 </head>
 
 <body>
+    <div class="logo-container">
+        <img src="./src/logo (2).png" alt="Logo">
+    </div>
+
     <header class="header">
         <h1>🚀 Welcome to Helpdesk Support</h1>
         <p>Your one-stop solution for all support needs. Choose your role to proceed.</p>
     </header>
 
     <div class="container">
-        <!-- Admin Card -->
         <div class="card">
             <div class="card-icon">
                 <i class="fas fa-user-shield"></i>
@@ -108,7 +131,6 @@
             <a href="./Admin/AdminCategory.html" class="card-btn">Admin Login</a>
         </div>
 
-        <!-- User Card -->
         <div class="card">
             <div class="card-icon">
                 <i class="fas fa-user"></i>
@@ -119,4 +141,5 @@
         </div>
     </div>
 </body>
+
 </html>
