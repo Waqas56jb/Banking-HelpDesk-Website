@@ -605,6 +605,67 @@ app.get('/api/message-history', (req, res) => {
     });
 });
 
+// New Endpoint for Records Page
+app.get('/api/records', (req, res) => {
+    const staffQuery = 'SELECT name, email, password FROM staff';
+    const bankersQuery = 'SELECT username, email, password FROM bankers';
+    const adminsQuery = 'SELECT admin_name, admin_email, admin_password FROM admins';
+
+    Promise.all([
+        new Promise((resolve, reject) => {
+            db.query(staffQuery, (err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.query(bankersQuery, (err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.query(adminsQuery, (err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+            });
+        })
+    ])
+    .then(([staff, bankers, admins]) => {
+        res.json({ staff, bankers, admins });
+    })
+    .catch(err => {
+        console.error('Error fetching records:', err.message);
+        res.status(500).json({ error: 'Database error: ' + err.message });
+    });
+});
+// New Endpoints for Deleting Accounts
+app.delete('/api/staff/:email', (req, res) => {
+    const email = req.params.email;
+    db.query('DELETE FROM staff WHERE email = ?', [email], (err, result) => {
+        if (err) return res.status(500).json({ error: 'Database error: ' + err.message });
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Staff not found' });
+        res.json({ message: 'Staff account deleted successfully' });
+    });
+});
+
+app.delete('/api/bankers/:email', (req, res) => {
+    const email = req.params.email;
+    db.query('DELETE FROM bankers WHERE email = ?', [email], (err, result) => {
+        if (err) return res.status(500).json({ error: 'Database error: ' + err.message });
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Banker not found' });
+        res.json({ message: 'Banker account deleted successfully' });
+    });
+});
+
+app.delete('/api/admins/:email', (req, res) => {
+    const email = req.params.email;
+    db.query('DELETE FROM admins WHERE admin_email = ?', [email], (err, result) => {
+        if (err) return res.status(500).json({ error: 'Database error: ' + err.message });
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Admin not found' });
+        res.json({ message: 'Admin account deleted successfully' });
+    });
+});
 // ... (Rest of your server.js code remains unchanged)
 // Start Server
 app.listen(port, () => {

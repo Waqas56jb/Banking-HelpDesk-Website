@@ -549,6 +549,11 @@
                 <select id="issueTypeFilter" class="filter-select">
                     <option value="">All Issue Types</option>
                 </select>
+                <select id="statusFilter" class="filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="Under Working">Unresolved</option>
+                    <option value="Request Resolved">Resolved</option>
+                </select>
                 <button class="btn btn-custom" id="selectAllBtn">Select All</button>
                 <button class="btn btn-custom" id="sendSelectedBtn">Send to Selected</button>
                 <button class="btn btn-danger" id="deleteAllBtn" onclick="deleteAllTickets()">Delete All</button>
@@ -827,12 +832,14 @@
             const searchTerm = $('#searchInput').val().toLowerCase();
             const priorityFilter = $('#priorityFilter').val().toLowerCase();
             const issueTypeFilter = $('#issueTypeFilter').val();
+            const statusFilter = $('#statusFilter').val();
 
             const filteredTickets = allTickets.filter(ticket => {
                 const matchesSearch = ticket.ticket_id.toString().includes(searchTerm) || ticket.email.toLowerCase().includes(searchTerm);
                 const matchesPriority = !priorityFilter || ticket.priority.toLowerCase() === priorityFilter;
                 const matchesIssueType = !issueTypeFilter || ticket.issue_type === issueTypeFilter;
-                return matchesSearch && matchesPriority && matchesIssueType;
+                const matchesStatus = !statusFilter || ticket.status === statusFilter;
+                return matchesSearch && matchesPriority && matchesIssueType && matchesStatus;
             });
             renderTickets(filteredTickets);
         }
@@ -908,7 +915,7 @@
                 alert('Notifications feature coming soon!');
             });
 
-            $('#searchInput, #priorityFilter, #issueTypeFilter').on('input change', filterTickets);
+            $('#searchInput, #priorityFilter, #issueTypeFilter, #statusFilter').on('input change', filterTickets);
 
             $('#selectAllBtn').click(function () {
                 const visibleRows = $('tr[data-ticket-id]:visible');

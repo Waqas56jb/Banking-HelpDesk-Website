@@ -269,74 +269,93 @@
         }
 
         .records-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
-            justify-content: space-between;
+            margin-top: 20px;
         }
 
         .records-panel {
-            flex: 1;
             background: var(--card-bg);
             border: 2px solid var(--primary);
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 8px 25px var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .records-panel:hover {
+            transform: translateY(-5px);
         }
 
         .records-panel h4 {
             color: var(--primary);
             text-align: center;
             margin-bottom: 20px;
-        }
-
-        .table-container {
-            max-height: 300px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary) #e9ecef;
-        }
-
-        .table-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .table-container::-webkit-scrollbar-track {
-            background: #e9ecef;
-            border-radius: 10px;
-        }
-
-        .table-container::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 10px;
-        }
-
-        .table {
-            color: var(--text);
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 8px;
-            background-color: transparent;
-        }
-
-        .table th {
-            color: var(--secondary);
+            font-size: 1.5rem;
             font-weight: 600;
-            background: var(--primary);
-            padding: 15px;
             text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            position: sticky;
-            top: 0;
-            z-index: 1;
         }
 
-        .table td {
-            background-color: transparent;
-            vertical-align: middle;
+        .user-card {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
             padding: 15px;
-            border-bottom: 1px solid rgba(0, 123, 255, 0.2);
-            color: var(--text);
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.5);
+        }
+
+        .user-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 123, 255, 0.1), transparent);
+            transform: rotate(30deg);
+            transition: all 0.5s ease;
+            pointer-events: none;
+        }
+
+        .user-card:hover::before {
+            transform: rotate(45deg) scale(1.2);
+        }
+
+        .user-card p {
+            margin: 5px 0;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .user-card p strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
         }
 
         h4 {
@@ -408,7 +427,7 @@
             }
 
             .records-container {
-                flex-direction: column;
+                grid-template-columns: 1fr;
             }
 
             .navbar .profile {
@@ -476,48 +495,15 @@
             <div class="records-container">
                 <div class="records-panel">
                     <h4>Staff Records</h4>
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Password</th>
-                                </tr>
-                            </thead>
-                            <tbody id="staffTableBody"></tbody>
-                        </table>
-                    </div>
+                    <div id="staffRecords"></div>
                 </div>
                 <div class="records-panel">
                     <h4>Banker Records</h4>
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Password</th>
-                                </tr>
-                            </thead>
-                            <tbody id="bankerTableBody"></tbody>
-                        </table>
-                    </div>
+                    <div id="bankerRecords"></div>
                 </div>
                 <div class="records-panel">
                     <h4>Admin Records</h4>
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Password</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminTableBody"></tbody>
-                        </table>
-                    </div>
+                    <div id="adminRecords"></div>
                 </div>
             </div>
         </div>
@@ -547,9 +533,9 @@
                 url: 'http://localhost:3000/api/records',
                 method: 'GET',
                 success: function (data) {
-                    renderRecords(data.staff, '#staffTableBody', ['name', 'email', 'password']);
-                    renderRecords(data.bankers, '#bankerTableBody', ['username', 'email', 'password']);
-                    renderRecords(data.admins, '#adminTableBody', ['admin_name', 'admin_email', 'admin_password']);
+                    renderRecords(data.staff, '#staffRecords', ['name', 'email', 'password'], 'Staff');
+                    renderRecords(data.bankers, '#bankerRecords', ['username', 'email', 'password'], 'Banker');
+                    renderRecords(data.admins, '#adminRecords', ['admin_name', 'admin_email', 'admin_password'], 'Admin');
                     $('#totalStaff').text(data.staff.length);
                     $('#totalBankers').text(data.bankers.length);
                     $('#totalAdmins').text(data.admins.length);
@@ -561,19 +547,38 @@
             });
         }
 
-        function renderRecords(records, tableBodyId, fields) {
-            const tbody = $(tableBodyId);
-            tbody.empty();
-            const limitedRecords = records.slice(0, 10); // Limit to 10 records
-            limitedRecords.forEach(record => {
-                tbody.append(`
-                    <tr>
-                        <td>${record[fields[0]]}</td>
-                        <td>${record[fields[1]]}</td>
-                        <td>${record[fields[2]]}</td>
-                    </tr>
+        function renderRecords(records, containerId, fields, role) {
+            const container = $(containerId);
+            container.empty();
+            records.forEach(record => {
+                container.append(`
+                    <div class="user-card">
+                        <p><strong>${role === 'Banker' ? 'Username' : 'Name'}:</strong> ${record[fields[0]]}</p>
+                        <p><strong>Email:</strong> ${record[fields[1]]}</p>
+                        <p><strong>Password:</strong> ${record[fields[2]]}</p>
+                        <button class="delete-btn" onclick="deleteRecord('${role.toLowerCase()}', '${record[fields[1]]}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 `);
             });
+        }
+
+        function deleteRecord(role, email) {
+            if (confirm(`Are you sure you want to delete this ${role} account with email ${email}?`)) {
+                $.ajax({
+                    url: `http://localhost:3000/api/${role}s/${email}`,
+                    method: 'DELETE',
+                    success: function (response) {
+                        alert(response.message);
+                        loadRecords(); // Refresh records after deletion
+                    },
+                    error: function (xhr) {
+                        console.error('Error deleting record:', xhr.responseJSON);
+                        alert("Failed to delete record: " + (xhr.responseJSON?.error || "Unknown error"));
+                    }
+                });
+            }
         }
 
         function logout() {
