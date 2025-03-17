@@ -706,6 +706,8 @@ app.delete('/api/admins/:email', (req, res) => {
         res.json({ message: 'Admin account deleted successfully' });
     });
 });
+
+
 // ... (Rest of your server.js code remains unchanged)
 // Start Server
 app.listen(port, () => {

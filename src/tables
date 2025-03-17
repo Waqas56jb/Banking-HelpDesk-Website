@@ -62,3 +62,8 @@ CREATE TABLE helpdesk.communication_history (
     sent_at DATETIME NOT NULL,
     FOREIGN KEY (ticket_id) REFERENCES support_tickets(ticket_id)
 );
+
+CREATE TABLE helpdesk.user_last_seen (
+    email VARCHAR(255) PRIMARY KEY,
+    last_seen DATETIME NOT NULL
+);
