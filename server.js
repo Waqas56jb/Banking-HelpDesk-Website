@@ -7,6 +7,17 @@ const { google } = require("googleapis");
 const fs = require("fs");
 const { OAuth2Client } = require("google-auth-library");
 
+// Dependency Check (Added for explicit handling)
+try {
+    if (!express || !mysql || !multer || !path || !cors || !google || !fs || !OAuth2Client) {
+        throw new Error("One or more dependencies are missing. Please install them using npm.");
+    }
+    console.log("All dependencies loaded successfully.");
+} catch (error) {
+    console.error("Dependency error:", error.message);
+    process.exit(1);
+}
+
 const app = express();
 const port = 3000;
 
@@ -639,30 +650,59 @@ app.get('/api/records', (req, res) => {
         res.status(500).json({ error: 'Database error: ' + err.message });
     });
 });
+
+// New Endpoints for Deleting Accounts
 // New Endpoints for Deleting Accounts
 app.delete('/api/staff/:email', (req, res) => {
     const email = req.params.email;
+    console.log(`DELETE request for staff with email: ${email}`); // Debug log
     db.query('DELETE FROM staff WHERE email = ?', [email], (err, result) => {
-        if (err) return res.status(500).json({ error: 'Database error: ' + err.message });
-        if (result.affectedRows === 0) return res.status(404).json({ error: 'Staff not found' });
+        console.log(`Query result for staff deletion: affectedRows = ${result?.affectedRows}`); // Debug log
+        if (err) {
+            console.error('Error deleting staff:', err); // Log full error object
+            return res.status(500).json({ error: 'Database error: ' + err.message });
+        }
+        if (result.affectedRows === 0) {
+            console.log(`Staff not found for email: ${email}`);
+            return res.status(404).json({ error: 'Staff not found' });
+        }
+        console.log(`Staff deleted successfully: ${email}`);
         res.json({ message: 'Staff account deleted successfully' });
     });
 });
 
 app.delete('/api/bankers/:email', (req, res) => {
     const email = req.params.email;
+    console.log(`DELETE request for banker with email: ${email}`); // Debug log
     db.query('DELETE FROM bankers WHERE email = ?', [email], (err, result) => {
-        if (err) return res.status(500).json({ error: 'Database error: ' + err.message });
-        if (result.affectedRows === 0) return res.status(404).json({ error: 'Banker not found' });
+        console.log(`Query result for banker deletion: affectedRows = ${result?.affectedRows}`); // Debug log
+        if (err) {
+            console.error('Error deleting banker:', err); // Log full error object
+            return res.status(500).json({ error: 'Database error: ' + err.message });
+        }
+        if (result.affectedRows === 0) {
+            console.log(`Banker not found for email: ${email}`);
+            return res.status(404).json({ error: 'Banker not found' });
+        }
+        console.log(`Banker deleted successfully: ${email}`);
         res.json({ message: 'Banker account deleted successfully' });
     });
 });
 
 app.delete('/api/admins/:email', (req, res) => {
     const email = req.params.email;
+    console.log(`DELETE request for admin with email: ${email}`); // Debug log
     db.query('DELETE FROM admins WHERE admin_email = ?', [email], (err, result) => {
-        if (err) return res.status(500).json({ error: 'Database error: ' + err.message });
-        if (result.affectedRows === 0) return res.status(404).json({ error: 'Admin not found' });
+        console.log(`Query result for admin deletion: affectedRows = ${result?.affectedRows}`); // Debug log
+        if (err) {
+            console.error('Error deleting admin:', err); // Log full error object
+            return res.status(500).json({ error: 'Database error: ' + err.message });
+        }
+        if (result.affectedRows === 0) {
+            console.log(`Admin not found for email: ${email}`);
+            return res.status(404).json({ error: 'Admin not found' });
+        }
+        console.log(`Admin deleted successfully: ${email}`);
         res.json({ message: 'Admin account deleted successfully' });
     });
 });
