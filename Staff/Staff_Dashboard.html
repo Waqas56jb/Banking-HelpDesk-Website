@@ -47,6 +47,19 @@
             position: relative;
         }
 
+        .navbar .header-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .logo {
+            width: 90px;
+            /* Adjust size as needed */
+            height: auto;
+            margin-right: 15px;
+            /* Space between logo and heading */
+        }
+
         .navbar h3 {
             color: var(--primary);
             margin: 0;
@@ -88,7 +101,6 @@
             border-collapse: separate;
             border-spacing: 0 8px;
             background-color: transparent;
-            /* Ensure table background doesn’t interfere */
         }
 
         .table th {
@@ -103,40 +115,31 @@
 
         .table td {
             background-color: transparent;
-            /* Ensure cells are transparent to show row color */
             vertical-align: middle;
             padding: 15px;
             border-bottom: 1px solid rgba(0, 123, 255, 0.2);
             color: #ffffff;
-            /* Changed to white */
             font-weight: bold;
-            /* Added bold styling */
         }
 
-        /* Priority Colors */
         .high-priority-row {
             background-color: #ff4d4d !important;
-            /* Red for high priority */
         }
 
         .medium-priority-row {
             background-color: #ffa64d !important;
-            /* Orange for medium priority */
         }
 
         .low-priority-row {
             background-color: #353530 !important;
-            /* Dull yellow for low priority */
         }
 
         .selected-row {
             background-color: #cce5ff !important;
-            /* Selection Blue */
         }
 
         .resolved-row {
             background-color: #28a745 !important;
-            /* Green for resolved */
             color: #ffffff !important;
         }
 
@@ -266,6 +269,16 @@
                 padding: 20px;
             }
 
+            .navbar .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar .logo {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
             .navbar .profile {
                 flex-direction: column;
                 align-items: flex-end;
@@ -287,7 +300,11 @@
 <body>
     <div class="content">
         <div class="navbar fade-in">
-            <h3>Staff Dashboard - Support Tickets</h3>
+            <div class="header-container">
+                <img src="../src/logo (2).png" alt="Company Logo" class="logo" id="logoImage"
+                    onerror="handleImageError()">
+                <h3>Staff Dashboard - Support Tickets</h3>
+            </div>
             <div class="profile">
                 <i class="fas fa-bell notification" title="Notifications"></i>
             </div>
@@ -371,6 +388,14 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function handleImageError() {
+            console.error('Failed to load logo image from "../src/logo (2).png". Check the following:');
+            console.error('1. File exists at the correct path relative to this HTML file');
+            console.error('2. Server is configured to serve static files from the "src" directory');
+            console.error('3. File name and extension are correct (case-sensitive)');
+            alert('Logo image could not be loaded. Please check the console (F12) for more details.');
+        }
+
         let allTickets = [];
         let selectedEmails = [];
 
@@ -415,6 +440,15 @@
                 const actionButton = ticket.status === 'Request Resolved' ?
                     `<button class="btn-done" disabled>Done</button>` :
                     `<button class="btn-done" onclick="resolveTicket(${ticket.ticket_id})">Done</button>`;
+                const formattedDate = ticket.datetime ? new Date(ticket.datetime).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                }) : 'N/A';
                 tbody.append(`
                     <tr data-ticket-id="${ticket.ticket_id}" data-email="${ticket.email}" class="${priorityClass} ${isSelected} ${isResolved}">
                         <td>${actionButton}</td>
@@ -428,7 +462,7 @@
                         <td>${ticket.subject}</td>
                         <td>${ticket.message}</td>
                         <td>${attachmentLink}</td>
-                        <td>${new Date(ticket.datetime).toLocaleString()}</td>
+                        <td>${formattedDate}</td>
                         <td>${ticket.status || 'Under Working'}</td>
                     </tr>
                 `);
@@ -496,7 +530,15 @@
                 'Subject': ticket.subject,
                 'Message': ticket.message,
                 'Attachment': ticket.attachment1 || 'None',
-                'Submission Date': new Date(ticket.datetime).toLocaleString(),
+                'Submission Date': ticket.datetime ? new Date(ticket.datetime).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                }) : 'N/A',
                 'Status': ticket.status || 'Under Working'
             }));
             const ws = XLSX.utils.json_to_sheet(data);

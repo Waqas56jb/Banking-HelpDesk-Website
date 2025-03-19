@@ -109,6 +109,19 @@
             position: relative;
         }
 
+        .navbar .header-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .logo {
+            width: 90px;
+            /* Adjust size as needed */
+            height: auto;
+            margin-right: 15px;
+            /* Space between logo and heading */
+        }
+
         .navbar h3 {
             color: var(--primary);
             margin: 0;
@@ -170,10 +183,10 @@
 
         .sidebar-toggle-btn span {
             position: absolute;
-            width: 100%;
-            height: 3px;
+            width: 80%;
+            height: 2px;
             background: var(--primary);
-            border-radius: 3px;
+            border-radius: 1px;
             transition: all 0.3s ease;
         }
 
@@ -288,9 +301,7 @@
             padding: 15px;
             border-bottom: 1px solid rgba(0, 123, 255, 0.2);
             color: #ffffff;
-            /* Changed to white */
             font-weight: bold;
-            /* Added bold styling */
         }
 
         .high-priority-row {
@@ -469,6 +480,16 @@
                 margin-left: 0;
             }
 
+            .navbar .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar .logo {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
             .chart-card {
                 min-width: 100%;
                 max-width: 100%;
@@ -507,16 +528,20 @@
             <span></span><span></span><span></span>
         </button>
         <h4>Admin Panel</h4>
-        <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="../Admin/Admin_Dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
         <a href="../Staff/signup.html"><i class="fas fa-tachometer-alt"></i> Staff</a>
         <a href="../Banker/signup.html"><i class="fas fa-tachometer-alt"></i> Banking</a>
         <a href="records.html"><i class="fas fa-database"></i> Records</a>
-        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <a href="../Admin/AdminCategory.html" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
     <div class="content" id="content">
         <div class="navbar fade-in">
-            <h3>Support Tickets Dashboard</h3>
+            <div class="header-container">
+                <img src="../src/logo (2).png" alt="Company Logo" class="logo" id="logoImage"
+                    onerror="handleImageError()">
+                <h3>Support Tickets Dashboard</h3>
+            </div>
             <div class="profile">
                 <i class="fas fa-bell notification" title="Notifications"></i>
                 <img id="profilePhoto" src="http://localhost:3000/uploads/default.png" alt="Profile">
@@ -618,6 +643,14 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function handleImageError() {
+            console.error('Failed to load logo image from "../src/logo (2).png". Check the following:');
+            console.error('1. File exists at the correct path relative to this HTML file');
+            console.error('2. Server is configured to serve static files from the "src" directory');
+            console.error('3. File name and extension are correct (case-sensitive)');
+            alert('Logo image could not be loaded. Please check the console (F12) for more details.');
+        }
+
         let issueTypeChart, priorityChart, statusChart;
         let isSidebarOpen = true;
         let allTickets = [];

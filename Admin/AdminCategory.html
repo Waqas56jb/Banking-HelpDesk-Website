@@ -14,12 +14,26 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100px;
+            /* Adjust size as needed */
+            height: auto;
         }
 
         .container {
             display: flex;
             justify-content: center;
             gap: 20px;
+            padding-top: 80px;
+            /* Add padding to avoid overlap with logo */
         }
 
         .card {
@@ -57,6 +71,7 @@
 </head>
 
 <body>
+    <img src="../src/logo (2).png" alt="Company Logo" class="logo">
 
     <div class="container">
         <div class="card">

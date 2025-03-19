@@ -15,14 +15,30 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            position: relative;
         }
 
         .header {
             background-color: #007bff;
-            padding: 40px 20px;
+            padding: 20px;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0, 123, 255, 0.5);
             color: white;
+            margin-top: 80px;
+            /* Matches second code */
+        }
+
+         .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100px;
+            /* Adjust size as needed */
+            height: auto;
+        }
+
+        .header-content {
+            padding: 20px;
         }
 
         .header h1 {
@@ -114,14 +130,22 @@
                 max-width: 350px;
                 height: auto;
             }
+
+            .header-content {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 
 <body>
+    <img src="../src/logo (2).png" alt="Company Logo" class="logo">
+
     <header class="header">
-        <h1>🚀 Welcome to Helpdesk Support</h1>
-        <p>Your one-stop solution for all support needs. Register a complaint or track your ticket with ease.</p>
+        <div class="header-content">
+            <h1>🚀 Welcome to Helpdesk Support</h1>
+            <p>Your one-stop solution for all support needs. Register a complaint or track your ticket with ease.</p>
+        </div>
     </header>
 
     <div class="container">

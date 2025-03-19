@@ -109,6 +109,19 @@
             position: relative;
         }
 
+        .navbar .header-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .logo {
+            width: 90px;
+            /* Specified width */
+            height: auto;
+            margin-right: 15px;
+            /* Space between logo and heading */
+        }
+
         .navbar h3 {
             color: var(--primary);
             margin: 0;
@@ -422,6 +435,16 @@
                 margin-left: 0;
             }
 
+            .navbar .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar .logo {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
             .stats-container {
                 flex-direction: column;
             }
@@ -467,7 +490,11 @@
 
     <div class="content" id="content">
         <div class="navbar fade-in">
-            <h3>Records Dashboard</h3>
+            <div class="header-container">
+                <img src="../src/logo (2).png" alt="Company Logo" class="logo" id="logoImage"
+                    onerror="handleImageError()">
+                <h3>Records Dashboard</h3>
+            </div>
             <div class="profile">
                 <i class="fas fa-bell notification" title="Notifications"></i>
                 <img id="profilePhoto" src="http://localhost:3000/uploads/default.png" alt="Profile">
@@ -510,6 +537,14 @@
     </div>
 
     <script>
+        function handleImageError() {
+            console.error('Failed to load logo image from "../src/logo (2).png". Check the following:');
+            console.error('1. File exists at the correct path relative to this HTML file');
+            console.error('2. Server is configured to serve static files from the "src" directory');
+            console.error('3. File name and extension are correct (case-sensitive)');
+            alert('Logo image could not be loaded. Please check the console (F12) for more details.');
+        }
+
         let isSidebarOpen = true;
 
         function toggleSidebar() {

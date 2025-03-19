@@ -14,6 +14,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100px;
+            /* Adjust size as needed */
+            height: auto;
         }
 
         .container {
@@ -24,6 +36,8 @@
             text-align: center;
             max-width: 400px;
             width: 100%;
+            margin-top: 80px;
+            /* Add margin to avoid overlap with logo */
         }
 
         .form-control {
@@ -69,6 +83,8 @@
 </head>
 
 <body>
+    <img src="../src/logo (2).png" alt="Company Logo" class="logo">
+
     <div class="container">
         <h2 class="mb-3">Admin Login</h2>
         <form id="adminLoginForm">
@@ -84,7 +100,6 @@
         </form>
 
         <p id="errorMessage" class="text-danger mt-2"></p>
-
     </div>
 
     <script>

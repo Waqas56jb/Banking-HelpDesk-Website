@@ -14,6 +14,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            margin: 0;
+            /* Reset default margin */
+            position: relative;
+            /* Allow absolute positioning of logo */
         }
 
         .container {
@@ -49,10 +53,20 @@
         .links a:hover {
             text-decoration: underline;
         }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100px;
+            /* Adjust size as needed */
+            height: auto;
+        }
     </style>
 </head>
 
 <body>
+    <img src="../src/logo (2).png" alt="Logo" class="logo">
     <div class="container">
         <h2 class="mb-3">Staff Login</h2>
         <form id="loginForm">
@@ -62,7 +76,6 @@
         </form>
         <div class="links mt-3">
             <a href="forgetpassword.html">Forgot Password?</a>
-            <a href="signup.html">Sign Up</a>
         </div>
     </div>
 

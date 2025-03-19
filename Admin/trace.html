@@ -13,6 +13,18 @@
             background-color: #f0f8ff;
             color: #000;
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100px;
+            /* Adjust size as needed */
+            height: auto;
         }
 
         .header {
@@ -21,6 +33,8 @@
             padding: 30px 20px;
             text-align: center;
             border-bottom: 4px solid #0056b3;
+            margin-top: 80px;
+            /* Add margin to avoid overlap with logo */
         }
 
         .container {
@@ -82,6 +96,8 @@
 </head>
 
 <body>
+    <img src="../src/logo (2).png" alt="Company Logo" class="logo">
+
     <header class="header">
         <h1>Track Your Support Ticket</h1>
         <p>Check your support request status</p>

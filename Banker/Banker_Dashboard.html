@@ -47,6 +47,19 @@
             position: relative;
         }
 
+        .navbar .header-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .logo {
+            width: 90px;
+            /* Adjust size as needed */
+            height: auto;
+            margin-right: 15px;
+            /* Space between logo and heading */
+        }
+
         .navbar h3 {
             color: var(--primary);
             margin: 0;
@@ -109,7 +122,6 @@
             border-collapse: separate;
             border-spacing: 0 8px;
             background-color: transparent;
-            /* Ensure table background doesn’t interfere */
         }
 
         .table th {
@@ -124,41 +136,32 @@
 
         .table td {
             background-color: transparent;
-            /* Ensure cells are transparent to show row color */
             vertical-align: middle;
             padding: 15px;
             border-bottom: 1px solid rgba(0, 123, 255, 0.2);
             color: #ffffff;
-            /* Changed to white */
             font-weight: bold;
-            /* Added bold styling */
         }
 
-        /* Priority and Status Colors */
         .high-priority-row {
             background-color: #ff4d4d !important;
-            /* Red for high priority */
         }
 
         .medium-priority-row {
             background-color: #ffa64d !important;
-            /* Orange for medium priority */
         }
 
         .low-priority-row {
             background-color: #73735e !important;
-            /* Dull yellow for low priority */
         }
 
         .resolved-row {
             background-color: #28a745 !important;
-            /* Green for resolved */
             color: #ffffff !important;
         }
 
         .selected-row {
             background-color: #cce5ff !important;
-            /* Selection Blue */
             color: #000000 !important;
         }
 
@@ -268,6 +271,16 @@
                 padding: 20px;
             }
 
+            .navbar .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar .logo {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
             .navbar .profile {
                 flex-direction: column;
                 align-items: flex-end;
@@ -298,7 +311,10 @@
 <body>
     <div class="content">
         <div class="navbar fade-in">
-            <h3>Banker Dashboard - Support Tickets</h3>
+            <div class="header-container">
+                <img src="../src/logo (2).png" alt="Company Logo" class="logo">
+                <h3>Banker Dashboard - Support Tickets</h3>
+            </div>
             <div class="profile">
                 <i class="fas fa-bell notification" title="Notifications"></i>
                 <span id="profileName">Banker</span>

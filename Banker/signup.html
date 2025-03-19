@@ -14,6 +14,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .logo {
+            width: 100px;
+            /* Adjust size as needed */
+            height: auto;
         }
 
         .container {
@@ -24,6 +39,8 @@
             text-align: center;
             max-width: 400px;
             width: 100%;
+            margin-top: 60px;
+            /* Added to prevent overlap with logo */
         }
 
         .form-control {
@@ -58,6 +75,9 @@
 </head>
 
 <body>
+    <div class="logo-container">
+        <img src="../src/logo (2).png" alt="Company Logo" class="logo" id="logoImage" onerror="handleImageError()">
+    </div>
     <div class="container">
         <h2 class="mb-3">Banker Signup</h2>
         <form id="signupForm">
@@ -66,10 +86,18 @@
             <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
             <button type="submit" class="btn btn-primary">Sign Up</button>
         </form>
-         <div id="response"></div>
+        <div id="response"></div>
     </div>
 
     <script>
+        function handleImageError() {
+            console.error('Failed to load logo image from "../src/logo (2).png". Check the following:');
+            console.error('1. File exists at the correct path relative to this HTML file');
+            console.error('2. Server is configured to serve static files from the "src" directory');
+            console.error('3. File name and extension are correct (case-sensitive)');
+            alert('Logo image could not be loaded. Please check the console (F12) for more details.');
+        }
+
         $(document).ready(function () {
             $("#signupForm").submit(async function (e) {
                 e.preventDefault();
